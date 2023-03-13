@@ -10,17 +10,14 @@
     "resolveJsonModule": true,
     "esModuleInterop": true,
     "lib": ["esnext", "dom"],
-    "types": [
-      "@dcloudio/types",
-      "vite/client",
-      "@types/node",
-      "vitest/globals"
-    ],
+    "types": ["@dcloudio/types", "vite/client", "@types/node", "vitest/globals"],
+    /* ------------------------- // ts 对 vite3 alias 的支持 ------------------------ */
     "baseUrl": "./",
     "paths": {
       "@/*": ["src/*"],
       "@components/*": ["src/components/*"]
     }
+    /* ----------------------------------- end ---------------------------------- */
   },
   "include": ["src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.vue"]
 }

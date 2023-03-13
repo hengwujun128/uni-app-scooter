@@ -1,3 +1,5 @@
+/* --------------------- pages.json 文件用来对 uni-app 进行全局配置 -------------------- */
+/* ------------------- 决定页面文件的路径、窗口样式、原生的导航栏、底部的原生tabbar 等 ------------------ */
 {
   "pages": [
     //pages数组中第一项表示应用启动页，参考：https://uniapp.dcloud.io/collocation/pages
@@ -32,15 +34,19 @@
       }
     }
   ],
+  // 设置默认页面的窗口表现
   "globalStyle": {
     "navigationBarTextStyle": "black",
     "navigationBarTitleText": "uni-app",
     "navigationBarBackgroundColor": "#F8F8F8",
     "backgroundColor": "#F8F8F8"
   },
+  //组件自动引入规则
   "easycom": {
     "custom": {
       "^u-(.*)": "vk-uview-ui/components/u-$1/u-$1.vue"
     }
-  }
+  },
+  //设置底部 tab 的表现
+  "tabBar": {}
 }
