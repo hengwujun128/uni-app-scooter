@@ -12,7 +12,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 
-const title = ref('Hello')
+const title = ref('这是各种demo测试页面')
 </script>
 
 <style scoped>

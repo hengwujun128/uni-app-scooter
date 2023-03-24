@@ -6,7 +6,7 @@
     {
       "path": "pages/index/index",
       "style": {
-        "navigationBarTitleText": "uni-app-home"
+        "navigationBarTitleText": "首页"
       }
     },
     {
@@ -32,6 +32,18 @@
       "style": {
         "navigationBarTitleText": "UnoCSS 示例"
       }
+    },
+    {
+      "path": "pages/test1/index",
+      "style": {
+        "navigationBarTitleText": "test1示例"
+      }
+    },
+    {
+      "path": "pages/test2/index",
+      "style": {
+        "navigationBarTitleText": "test2示例"
+      }
     }
   ],
   // 设置默认页面的窗口表现
@@ -47,6 +59,29 @@
       "^u-(.*)": "vk-uview-ui/components/u-$1/u-$1.vue"
     }
   },
-  //设置底部 tab 的表现
-  "tabBar": {}
+  //设置底部 tab 的表现,注意不能为空,下面就有问题
+  // "tabBar": {}
+  "tabBar": {
+    "color": "#7A7E83",
+    "selectedColor": "#3cc51f",
+    "borderStyle": "black",
+    "backgroundColor": "#ffffff",
+    "position":"bottom",
+    "iconWidth": "24px",
+    "list": [
+      {
+        // 坑: tabBar 第一项要和pages 第一项保持一致, 不然不显示
+        "pagePath": "pages/index/index",
+        "iconPath": "./static/images/user.png",
+        "selectedIconPath": "./static/images/user-filled.png",
+        "text": "首页"
+      },
+      {
+        "pagePath": "pages/test2/index",
+        "iconPath": "./static/images/setting.png",
+        "selectedIconPath": "./static/images/setting-filled.png",
+        "text": "测试二"
+      }
+    ]
+  }
 }

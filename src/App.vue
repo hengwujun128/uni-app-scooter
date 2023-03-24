@@ -14,5 +14,6 @@ onHide(() => {
 })
 </script>
 <style lang="scss">
+// 全局的样式
 @import 'vk-uview-ui/index.scss';
 </style>
