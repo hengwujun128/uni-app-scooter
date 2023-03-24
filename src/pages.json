@@ -56,6 +56,7 @@
   //组件自动引入规则
   "easycom": {
     "custom": {
+			"^uni-(.*)": "@dcloudio/uni-ui/lib/uni-$1/uni-$1.vue",
       "^u-(.*)": "vk-uview-ui/components/u-$1/u-$1.vue"
     }
   },
@@ -80,7 +81,7 @@
         "pagePath": "pages/test2/index",
         "iconPath": "./static/images/setting.png",
         "selectedIconPath": "./static/images/setting-filled.png",
-        "text": "测试二"
+        "text": "当前设备"
       }
     ]
   }
