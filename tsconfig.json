@@ -20,8 +20,8 @@
     "paths": {
       "@/*": ["src/*"],
       "@components/*": ["src/components/*"]
-    }
-    // "allowImportingTsExtensions":true
+    },
+    "allowImportingTsExtensions":true
     /* ----------------------------------- end ---------------------------------- */
   },
   // fix: button type
