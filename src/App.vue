@@ -14,6 +14,9 @@ onHide(() => {
 })
 </script>
 <style lang="scss">
+// uni-ui 辅助样式 https://uniapp.dcloud.net.cn/component/uniui/uni-sass.html
+// @import '@/uni_modules/uni-scss/index.scss';
+
 // 全局的样式
 @import 'vk-uview-ui/index.scss';
 </style>
