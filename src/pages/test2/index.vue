@@ -101,17 +101,17 @@
     </uni-section>
     <uni-section title="第五步: 订阅消息并监听,通过监听接收传来的数据:" type="line" top="20">
       <view class="example-body box">
-        <button type="info" plain="true" size="mini" @click="notify">订阅消息,开启消息监听</button>
+        <button type="default" plain size="mini" @click="notify">订阅消息,开启消息监听</button>
       </view>
     </uni-section>
     <uni-section title="第六步:发送指令:" type="line" top="20">
       <view class="example-body box">
-        <button type="primary" plain="true" size="mini" @click="sendMessage">订阅消息,开启消息监听</button>
+        <button type="primary" plain size="mini" @click="sendMessage">订阅消息,开启消息监听</button>
       </view>
     </uni-section>
     <uni-section title="停止搜索:" type="line" top="20">
       <view class="example-body box">
-        <button class="button button-error" type="danger" @click="stop">
+        <button class="button button-error" type="warn" @click="stop">
           <text class="button-text button-text__error">停止搜索</text>
         </button>
       </view>

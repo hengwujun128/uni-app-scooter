@@ -44,7 +44,14 @@
       "style": {
         "navigationBarTitleText": "test2示例"
       }
+    },
+    {
+      "path": "pages/home/home",
+      "style": {
+        "navigationBarTitleText": "首页"
+      }
     }
+    
   ],
   // 设置默认页面的窗口表现
   "globalStyle": {
@@ -73,8 +80,8 @@
       {
         // 坑: tabBar 第一项要和pages 第一项保持一致, 不然不显示
         "pagePath": "pages/index/index",
-        "iconPath": "./static/images/user.png",
-        "selectedIconPath": "./static/images/user-filled.png",
+        "iconPath": "./static/images/home.png",
+        "selectedIconPath": "./static/images/home-filled.png",
         "text": "首页"
       },
       {
