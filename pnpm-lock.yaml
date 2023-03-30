@@ -32,6 +32,7 @@ specifiers:
   c8: ^7.11.3
   cz-git: ^1.4.1
   czg: ^1.4.1
+  echarts: ^5.4.2
   eslint: ^8.19.0
   eslint-config-airbnb-base: ^15.0.0
   eslint-config-prettier: ^8.5.0
@@ -45,8 +46,9 @@ specifiers:
   sass: ^1.53.0
   sass-loader: 10.1.1
   simple-git-hooks: ^2.8.1
+  tslib: ^2.5.0
   typescript: ^5.0.2
-  uni-app-types: ^0.1.7
+  uniapp-echarts: ^1.0.2
   unocss: ^0.46.4
   unocss-preset-weapp: ^0.2.1
   vite: ^3.1.8
@@ -56,6 +58,7 @@ specifiers:
   vue: ^3.2.41
   vue-i18n: ^9.1.9
   vuex: ^4.0.2
+  zrender: ^5.4.3
 
 dependencies:
   '@dcloudio/uni-app': 3.0.0-alpha-3060920221114001_3bz7gvgemyffbkrpwxrx6xlp4a
@@ -73,11 +76,14 @@ dependencies:
   '@dcloudio/uni-ui': 1.4.26
   axios: 0.27.2
   cz-git: 1.4.1
+  echarts: 5.4.2
   pinia: 2.0.14_joyxj3zfbjybmc7wyhhtkjv4cy
+  uniapp-echarts: 1.0.2
   vk-uview-ui: 1.3.7
   vue: 3.2.45
   vue-i18n: 9.1.10_vue@3.2.45
   vuex: 4.0.2_vue@3.2.45
+  zrender: 5.4.3
 
 devDependencies:
   '@commitlint/cli': 17.4.2
@@ -108,8 +114,8 @@ devDependencies:
   sass: 1.53.0
   sass-loader: 10.1.1_sass@1.53.0
   simple-git-hooks: 2.8.1
+  tslib: 2.5.0
   typescript: 5.0.2
-  uni-app-types: 0.1.7
   unocss: 0.46.4_vite@3.2.3
   unocss-preset-weapp: 0.2.1
   vite: 3.2.3_ppdxls77r7tfsxvxidunrbldv4
@@ -590,10 +596,6 @@ packages:
     engines: {node: '>=12'}
     dependencies:
       '@jridgewell/trace-mapping': 0.3.9
-    dev: true
-
-  /@dcloudio/types/3.0.15:
-    resolution: {integrity: sha512-3ngPB4X1Nql8OxWn3sjXgGYAB57mPnAzzmlOBv1nppYGJMD/Hn/oet1LUK72IdJKxiCU5kMBftWylDPQAx6Y7g==}
     dev: true
 
   /@dcloudio/types/3.0.19:
@@ -2746,6 +2748,13 @@ packages:
     resolution: {integrity: sha512-jtD6YG370ZCIi/9GTaJKQxWTZD045+4R4hTk/x1UyoqadyJ9x9CgSi1RlVDQF8U2sxLLSnFkCaMihqljHIWgMg==}
     dev: true
 
+  /echarts/5.4.2:
+    resolution: {integrity: sha512-2W3vw3oI2tWJdyAz+b8DuWS0nfXtSDqlDmqgin/lfzbkB01cuMEN66KWBlmur3YMp5nEDEEt5s23pllnAzB4EA==}
+    dependencies:
+      tslib: 2.3.0
+      zrender: 5.4.3
+    dev: false
+
   /ee-first/1.1.1:
     resolution: {integrity: sha512-WMwm9LhRUo+WUaRN+vRuETqG89IgZphVSNkdFgeb6sS/E4OrDIN7t48CAewSHXc6C8lefD8KKfr5vY61brQlow==}
     dev: true
@@ -4266,7 +4275,7 @@ packages:
     dependencies:
       copy-anything: 2.0.6
       parse-node-version: 1.0.1
-      tslib: 2.4.0
+      tslib: 2.5.0
     optionalDependencies:
       errno: 0.1.8
       graceful-fs: 4.2.10
@@ -5626,8 +5635,12 @@ packages:
     resolution: {integrity: sha512-Xni35NKzjgMrwevysHTCArtLDpPvye8zV/0E4EyYn43P7/7qvQwPh9BGkHewbMulVntbigmcT7rdX3BNo9wRJg==}
     dev: true
 
-  /tslib/2.4.0:
-    resolution: {integrity: sha512-d6xOpEDfsi2CZVlPQzGeux8XMwLT9hssAsaPYExaQMuYskwb+x1x7J371tWlbBdWHroy99KnVB6qIkUbs5X3UQ==}
+  /tslib/2.3.0:
+    resolution: {integrity: sha512-N82ooyxVNm6h1riLCoyS9e3fuJ3AMG2zIZs2Gd1ATcSFjSA23Q0fzjjZeh0jbJvWVDZ0cJT8yaNNaaXHzueNjg==}
+    dev: false
+
+  /tslib/2.5.0:
+    resolution: {integrity: sha512-336iVw3rtn2BUK7ORdIAHTyxHGRIHVReokCR3XjbckJMK7ms8FysBfhLR8IXnAgy7T0PTPNBWKiH514FOW/WSg==}
 
   /tsutils/3.21.0_typescript@5.0.2:
     resolution: {integrity: sha512-mHKK3iUXL+3UF6xL5k0PEhKRUBKPBCv/+RkEOpjRWxxx27KKRBmmA60A9pgOUvMi8GKhRMPEmjBRPzs2W7O1OA==}
@@ -5718,14 +5731,10 @@ packages:
       busboy: 1.6.0
     dev: true
 
-  /uni-app-types/0.1.7:
-    resolution: {integrity: sha512-nDRRyUmC+pgl9/sED5z/rP1kKGfKvC9o4UctxbOLb0hqFhFE/45KASsTiHf7/SxQlmhfIgbZgesMQMeyLUGlDQ==}
-    engines: {node: '>=14.16'}
-    deprecated: Please use @uni-helper/uni-app-types.
-    dependencies:
-      '@dcloudio/types': 3.0.15
-      vue3: /vue/3.2.47
-    dev: true
+  /uniapp-echarts/1.0.2:
+    resolution: {integrity: sha512-z8b32orT0xslOTnT4JrfPZDdTkrFBmdfycPAux1DhCyvhjdgtSxhmVmxqFh0/bWzH+cuuVgAFLoxeDe+M8p8ag==}
+    engines: {HBuilderX: ^3.2.13}
+    dev: false
 
   /universalify/2.0.0:
     resolution: {integrity: sha512-hAZsKq7Yy11Zu1DE0OzWjw7nnLZmJZYTDZZyEFHZdUhV8FkH5MCfoU1XMaxXovpyW5nq5scPqq0ZDP9Zyl04oQ==}
@@ -6193,3 +6202,9 @@ packages:
     resolution: {integrity: sha512-rVksvsnNCdJ/ohGc6xgPwyN8eheCxsiLM8mxuE/t/mOVqJewPuO1miLpTHQiRgTKCLexL4MeAFVagts7HmNZ2Q==}
     engines: {node: '>=10'}
     dev: true
+
+  /zrender/5.4.3:
+    resolution: {integrity: sha512-DRUM4ZLnoaT0PBVvGBDO9oWIDBKFdAVieNWxWwK0niYzJCMwGchRk21/hsE+RKkIveH3XHCyvXcJDkgLVvfizQ==}
+    dependencies:
+      tslib: 2.3.0
+    dev: false

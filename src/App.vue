@@ -15,7 +15,8 @@ onHide(() => {
 </script>
 <style lang="scss">
 // uni-ui 辅助样式 https://uniapp.dcloud.net.cn/component/uniui/uni-sass.html
-// @import '@/uni_modules/uni-scss/index.scss';
+// @import '@/uni_modules/uni-scss/index.scss'; 因为uni_modules 下面没有,所以 从node_modules 下引入
+@import '@dcloudio/uni-ui/lib/uni-scss/index.scss';
 
 // 全局的样式
 @import 'vk-uview-ui/index.scss';
