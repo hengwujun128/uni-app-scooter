@@ -16,8 +16,9 @@ const instance = axios.create({
   adapter(config) {
     console.log('request adapter ↓↓')
     console.log(config)
-    const { url, method, data, params, headers, baseURL, paramsSerializer } =
-      config
+
+    const { url, method, data, params, headers, baseURL, paramsSerializer } = config
+
     return new Promise((resolve, reject) => {
       uni.request({
         method: method!.toUpperCase() as any,

@@ -1,12 +1,13 @@
 <template>
   <view class="index-page">
+    <!--  -->
     <Hello />
     <UnoCss />
-    <text class="h2"> 查看其它页面示例↓ </text>
+    <text class="h2">查看其它页面示例↓</text>
     <view>
-      <navigator v-for="(v, idx) in pages" :key="idx" :url="v.url">{{
-        v.title
-      }}</navigator>
+      <navigator v-for="(v, idx) in pages" :key="idx" :url="v.url">
+        <span class="title">{{ v.title }}</span>
+      </navigator>
     </view>
   </view>
 </template>
@@ -15,6 +16,7 @@
 import { reactive } from 'vue'
 import Hello from '@/components/hello/index.vue'
 import UnoCss from '@/components/unocss/index.vue'
+import { onLoad } from '@dcloudio/uni-app'
 
 const pages = reactive([
   {
@@ -34,6 +36,11 @@ const pages = reactive([
     url: '/pages/unocss/index'
   }
 ])
+
+uni.navigateTo({
+  // url: '../home/home'
+  url: '../main/main'
+})
 </script>
 
 <style scoped>
@@ -43,7 +50,11 @@ const pages = reactive([
 }
 .h2 {
   color: green;
-  font-size: 50rpx;
+  /* 750 视觉设计稿 */
+  font-size: 32rpx;
+}
+.title {
+  font-size: 40rpx;
 }
 navigator {
   color: #1e80ff;
