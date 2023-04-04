@@ -10,6 +10,12 @@
       }
     },
     {
+      "path": "pages/main/main",
+      "style": {
+        "navigationBarTitleText": "主页"
+      }
+    },
+    {
       "path": "pages/pinia/index",
       "style": {
         "navigationBarTitleText": "状态管理工具（pinia）"

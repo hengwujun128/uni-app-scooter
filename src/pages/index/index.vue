@@ -38,13 +38,9 @@ const pages = reactive([
 ])
 
 uni.navigateTo({
-  url: '../home/home'
+  // url: '../home/home'
+  url: '../main/main'
 })
-// onLoad(() => {
-//   uni.navigateTo({
-//     url: '../home/index'
-//   })
-// })
 </script>
 
 <style scoped>

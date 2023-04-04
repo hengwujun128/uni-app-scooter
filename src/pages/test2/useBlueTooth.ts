@@ -21,6 +21,10 @@ const useBlueTooth = () => {
     }
   }
 
+  const DEVICE_ID = '' // 指定设备 ID
+  const SERVER_ID = '' // 指定设备下的指定服务
+  const CHARACTERISTIC_ID = '' //  指定设备下的指定服务下的指定特征值
+
   const filterServiceUUIDs = ref([]) // 用于过滤无关的蓝牙设备,需要参考蓝牙设备厂商提供的蓝牙协议；
 
   const blueDeviceList: Ref<DEVICE[]> = ref([])
@@ -32,7 +36,7 @@ const useBlueTooth = () => {
   const characteristicId = ref('')
 
   // ArrayBuffer转16进度字符串示例
-  const ab2hex = (buffer: unknown) => {
+  const ab2hex = (buffer: ArrayBuffer) => {
     const hexArr = Array.prototype.map.call(new Uint8Array(buffer), function (bit) {
       return ('00' + bit.toString(16)).slice(-2)
     })

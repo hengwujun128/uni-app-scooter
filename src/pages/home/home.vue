@@ -1,14 +1,76 @@
 <template>
   <!-- 参考文档 -->
   <!-- https://ext.dcloud.net.cn/plugin?name=echarts-for-uniapp -->
-  <view class="content">
-    <!-- <uni-tag text="标签" type="error" :circle="true"></uni-tag> -->
-    <view class="icon icon-leftTop"><text>天气</text></view>
-    <view class="icon icon-rightTop">控制器</view>
-    <view class="icon icon-leftBottom">海拔</view>
-    <view class="icon icon-rightBottom">电压</view>
-    <uni-chart ref="chartRef" :option="option" @inited="inited" />
-    <!-- <uni-chart ref="chartRef" :option="option" theme="dark" @inited="inited" /> -->
+  <view class="home-page">
+    <view class="content">
+      <!-- <uni-tag text="标签" type="error" :circle="true"></uni-tag> -->
+      <view class="icon icon-leftTop">
+        <u-icon label="天气" size="40" label-color="#ffffff" name="/static/images/天气.png"></u-icon>
+      </view>
+      <view class="icon icon-rightTop">
+        <u-icon label="控制器" size="40" label-color="#ffffff" name="/static/images/控制器.png"></u-icon>
+      </view>
+      <view class="icon icon-leftBottom">
+        <u-icon label="控制器" size="40" label-color="#ffffff" name="/static/images/海拔.png"></u-icon>
+      </view>
+      <view class="icon icon-rightBottom">
+        <u-icon label="电压" size="40" label-color="#ffffff" name="/static/images/电压.png"></u-icon>
+      </view>
+      <uni-chart ref="chartRef" :option="option" @inited="inited" />
+      <!-- <uni-chart ref="chartRef" :option="option" theme="dark" @inited="inited" /> -->
+    </view>
+    <view class="content content-action">
+      <view class="row">
+        <view class="col">
+          <u-icon
+            label="锁定"
+            label-size="40"
+            width="40"
+            height="40"
+            label-color="#ffffff"
+            label-pos="right"
+            space="10"
+            hover-class="hover-class"
+            name="/static/images/控制器.png"
+          ></u-icon>
+        </view>
+        <view class="col">
+          <u-icon
+            label="助力"
+            size="60"
+            label-size="40"
+            label-color="#ffffff"
+            label-pos="right"
+            space="10px"
+            hover-class="hover-class"
+          ></u-icon>
+        </view>
+      </view>
+      <view class="row">
+        <view class="col">
+          <u-icon
+            label="灯光"
+            size="60"
+            label-size="40"
+            label-color="#ffffff"
+            label-pos="right"
+            space="10"
+            hover-class="hover-class"
+          ></u-icon>
+        </view>
+        <view class="col">
+          <u-icon
+            label="低速"
+            size="60"
+            label-size="40"
+            label-color="#ffffff"
+            label-pos="right"
+            space="10"
+            hover-class="hover-class"
+          ></u-icon>
+        </view>
+      </view>
+    </view>
   </view>
 </template>
 <script setup lang="ts">
@@ -101,6 +163,7 @@ const option = {
     }
   ]
 }
+
 const inited = (chart: unknown) => {
   chartRef.value = chart
   setInterval(() => {
@@ -131,31 +194,61 @@ const inited = (chart: unknown) => {
 }
 // onMounted(() => {})
 </script>
+
 <style lang="scss" scoped>
+@import '@dcloudio/uni-ui/lib/uni-scss/index.scss';
+
+.home-page {
+  height: 100vh;
+  width: 100vw;
+  background-color: $uni-black;
+}
 .content {
   width: 100vw;
   height: 50vh;
   margin: 0 auto;
   position: relative;
+  // background-color: $uni-black;
+  color: $uni-white;
   .icon {
     position: absolute;
     z-index: 1;
+    cursor: pointer;
+    padding: 10rpx 30rpx;
+    // border: 1rpx solid red;
   }
   .icon-leftTop {
-    left: 60rpx;
+    left: 40rpx;
     top: 60rpx;
   }
   .icon-rightTop {
-    right: 60rpx;
+    right: 40rpx;
     top: 60rpx;
   }
   .icon-leftBottom {
-    left: 60rpx;
+    left: 40rpx;
     bottom: 60rpx;
   }
   .icon-rightBottom {
-    right: 60rpx;
+    right: 40rpx;
     bottom: 60rpx;
+  }
+}
+
+.content-action {
+  text-align: center;
+  background-color: rgba(164, 156, 156, 0.1);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  .row {
+    display: flex;
+    align-items: center;
+    height: 10vh;
+  }
+  .col {
+    flex: 1;
+    text-align: center;
   }
 }
 </style>

@@ -30,15 +30,9 @@
       </view>
       <!-- 蓝牙设备 list -->
       <uni-list v-if="step === 1 && blueDeviceList">
-        <uni-list-item
-          v-for="item in blueDeviceList"
-          :key="item.deviceId"
-          title=""
-          clickable
-          @click="selectDevice(item)"
-        >
+        <uni-list-item v-for="item in blueDeviceList" :key="item.deviceId" title="" clickable>
           <template #body>
-            <view :class="[item.deviceId === deviceId ? 'device__active' : '']">
+            <view :class="[item.deviceId === deviceId ? 'device__active' : '']" @click="selectDevice(item)">
               <view>
                 <text>id: {{ item.deviceId }}</text>
               </view>
@@ -57,9 +51,9 @@
         </button>
       </view>
       <uni-list v-if="step === 2 && serviceList">
-        <uni-list-item v-for="item in serviceList" :key="item.uuid" title="" clickable @click="selectService(item)">
+        <uni-list-item v-for="item in serviceList" :key="item.uuid" title="" clickable>
           <template #body>
-            <view :class="[item.uuid === serviceId ? 'service__active' : '']">
+            <view :class="[item.uuid === serviceId ? 'service__active' : '']" @click="selectService(item)">
               <view>
                 <text>uuid: {{ item.uuid }}</text>
               </view>
@@ -106,7 +100,15 @@
     </uni-section>
     <uni-section title="第六步:发送指令:" type="line" top="20">
       <view class="example-body box">
-        <button type="primary" plain size="mini" @click="sendMessage">订阅消息,开启消息监听</button>
+        <button type="primary" plain size="mini" @click="sendMessage">订阅消息,发送指令</button>
+      </view>
+    </uni-section>
+
+    <uni-section title="断开连接:" type="line" top="20">
+      <view class="example-body box">
+        <button class="button button-error" type="warn" @click="disconnect">
+          <text class="button-text button-text__error">断开连接</text>
+        </button>
       </view>
     </uni-section>
     <uni-section title="停止搜索:" type="line" top="20">
@@ -118,6 +120,7 @@
     </uni-section>
 
     <!-- 当前设备服务列表 -->
+    <!-- ToDo: 是否需要重连操作 -->
   </view>
 </template>
 
@@ -126,8 +129,10 @@ import { onBackPress } from '@dcloudio/uni-app'
 import { ref, Ref, onMounted, onBeforeUnmount } from 'vue'
 
 import useBlueTooth from './useBlueTooth.ts'
+import { useBleData } from './useBleData.ts'
 
 const { hexCharCodeToStr, ab2hex } = useBlueTooth()
+
 interface DEVICE {
   deviceId: string
   name: string
@@ -157,6 +162,8 @@ const characteristics: Ref<CHARACTERISTIC[]> = ref([])
 const deviceId = ref('')
 const serviceId = ref('')
 const characteristicId = ref('')
+
+const { pageState, getBleData } = useBleData(deviceId.value, serviceId.value, characteristicId.value)
 
 const goHome = () => {
   console.log('go home ---')
@@ -193,7 +200,7 @@ const sendMessage = () => {
       //TODO: uni.writeBLECharacteristicValue 走 success ，证明你已经把数据向外成功发送了，但不代表设备一定就收到了。
       // 通常设备收到你发送过去的信息，会返回一条消息给你，而这个回调消息会在 uni.onBLECharacteristicValueChange 触发
       // 但这是蓝牙设备那边控制的，你作为前端佬，人家“已读不回” 也是有的,你也拿人家没办法。
-      console.log(res)
+      console.log('发送消息结果', res)
     },
     fail(err) {
       console.error(err)
@@ -204,11 +211,14 @@ const sendMessage = () => {
 const listenValueChange = () => {
   uni.onBLECharacteristicValueChange((res) => {
     // 结果
-    console.log({ 有消息进入: res }) // 结果里有个value值，该值为 ArrayBuffer 类型，所以在控制台无法用肉眼观察到，必须将该值转换为16进制
-    let resHex = ab2hex(res.value)
-    console.log(resHex) // 最后将16进制转换为ascii码，就能看到对应的结果
-    let result = hexCharCodeToStr(resHex)
-    console.log(result)
+    // console.log({ 有消息进入: res }) // 结果里有个value值，该值为 ArrayBuffer 类型，所以在控制台无法用肉眼观察到，必须将该值转换为16进制
+    // let resHex = ab2hex(res.value)
+    // console.log('将蓝牙的 arrayBuffer 转换成 16 进制的结果', resHex) // 最后将16进制转换为ascii码，就能看到对应的结果
+    // let result = hexCharCodeToStr(resHex)
+    // console.log('--------最后将16进制转换为ascii码---', result)
+    getBleData(res.value)
+    console.log('----pageState---', pageState)
+    // 测试 取消消息监听
   })
 }
 
@@ -238,6 +248,7 @@ const getCharacteristics = () => {
     success: (res) => {
       console.log(res)
       characteristics.value = res.characteristics
+      characteristicId.value = res.characteristics[0]?.uuid
     },
     fail(err) {
       console.error(err)
@@ -270,6 +281,7 @@ const selectService = (service: SERVICE) => {
 
 // 连接到指定的蓝牙设备 - 连接成功之后停止搜索
 const selectDevice = (device: DEVICE) => {
+  console.log('开始连接到指定的蓝牙设备', device)
   deviceId.value = device.deviceId
   uni.createBLEConnection({
     deviceId: deviceId.value,
@@ -303,6 +315,15 @@ const closeBlueTooth = () => {
   })
 }
 
+// 断开蓝牙连接
+const disconnect = () => {
+  uni.closeBLEConnection({
+    deviceId: deviceId.value,
+    success: (res) => {
+      console.log('-----断开蓝牙连接成功----', res)
+    }
+  })
+}
 // 停止蓝牙搜索
 const stopDiscovery = () => {
   uni.stopBluetoothDevicesDiscovery({
@@ -333,7 +354,7 @@ const startDiscovery = () => {
       uni.onBluetoothDeviceFound((data) => {
         const { devices = [] } = data
         console.log('deviceId----name---:', devices[0].name)
-        if (devices[0].name && devices[0].name.indexOf('Unknown') < 0) {
+        if (devices[0].name && devices[0].name === 'Scooter_41360') {
           blueDeviceList.value.push(devices[0])
         }
       })
@@ -424,7 +445,7 @@ onBeforeUnmount(() => {
   .service__active {
     width: 100%;
     background-color: $uni-color-success;
-    color: $uni-color-success;
+    color: #fff;
     // border-color: $uni-color-success;
   }
 }
