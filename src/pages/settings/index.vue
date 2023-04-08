@@ -26,13 +26,21 @@
     </uni-nav-bar>
 
     <view class="body">
-      <view class="card card-columnLayout">
-        <view class="left">
-          <text class="title">语言设置</text>
-          <text class="desc">中文</text>
-        </view>
-        <view class="right">
-          <uni-icons type="right" size="24" color="#fff;opacity:0.4" @click="setLang"></uni-icons>
+      <view class="card">
+        <view class="row">
+          <view class="left">
+            <text class="title">语言设置</text>
+            <text class="desc">中文</text>
+          </view>
+          <view class="right action">
+            <uni-icons
+              type="right"
+              size="24"
+              class="setting-icon"
+              color="#fff;opacity:0.4"
+              @click="setLang"
+            ></uni-icons>
+          </view>
         </view>
       </view>
       <!-- 方向灵敏度 -->
@@ -75,16 +83,6 @@
           <text class="label label-right">后</text>
         </view>
       </view>
-      <!-- 方向校正与自平衡  -->
-      <!-- <view class="card card-columnLayout">
-        <view class="left">
-          <text class="title">方向校正与自平衡</text>
-          <text class="desc">已锁定</text>
-        </view>
-        <view class="right">
-          <uni-icons type="right" size="24" color="#fff;opacity:0.4" @click="setLang"></uni-icons>
-        </view>
-      </view> -->
 
       <!-- 方向矫正 -->
       <view class="card card-rowLayout">
@@ -144,13 +142,15 @@
         </view>
       </view>
       <!-- 管理员设置 -->
-      <view class="card card-columnLayout">
-        <view class="left">
-          <text class="title">管理员设置</text>
-          <text class="desc">已锁定</text>
-        </view>
-        <view class="right">
-          <uni-icons type="right" size="24" color="#fff;opacity:0.4" @click="setLang"></uni-icons>
+      <view class="card">
+        <view class="row">
+          <view class="left">
+            <text class="title">管理员设置</text>
+            <text class="desc">已锁定</text>
+          </view>
+          <view class="right">
+            <uni-icons type="right" size="24" color="#fff;opacity:0.4" @click="setLang"></uni-icons>
+          </view>
         </view>
       </view>
       <!-- end -->
@@ -184,6 +184,8 @@ const setDirection = (e: any) => {
 </script>
 
 <style lang="scss" scoped>
+@import '../../styles/mixins/__animation.scss';
+
 .icon-left {
   width: 80rpx;
   height: 80rpx;
@@ -229,10 +231,7 @@ const setDirection = (e: any) => {
     }
   }
 }
-.card-columnLayout {
-  display: flex;
-  align-items: center;
-}
+
 .row {
   display: flex;
   align-items: center;
@@ -245,18 +244,16 @@ const setDirection = (e: any) => {
   margin: 16rpx 0rpx;
 }
 
-.card-rowLayout {
-  .label {
-    font-size: 32rpx;
-  }
-  .label-left,
-  .label-right {
-    font-size: 24rpx;
-    opacity: 0.6;
-  }
+.label {
+  font-size: 32rpx;
+}
+.label-left,
+.label-right {
+  font-size: 24rpx;
+  opacity: 0.6;
+}
 
-  .slider {
-    flex: 1;
-  }
+.slider {
+  flex: 1;
 }
 </style>

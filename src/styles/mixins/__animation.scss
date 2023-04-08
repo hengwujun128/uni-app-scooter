@@ -1,0 +1,28 @@
+
+
+@mixin button-states {
+  &:hover {
+    // styles for hover state
+    cursor: pointer;
+  }
+  
+  &:active {
+    // styles for active state
+  }
+}
+// Define a mixin for the button click effect:
+@mixin button-click-effect($scale: 0.95) {
+  transition: transform 2s ease;
+  
+  &:hover, &:active {
+    transform: scale($scale);
+  }
+}
+
+/* -------------------------------- user case ------------------------------- */
+// .button {
+//   // styles for normal state
+  
+//   @include button-states;
+//   @include button-click-effect(0.9);
+// }

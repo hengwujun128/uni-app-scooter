@@ -8,6 +8,24 @@
       }
     },
     {
+      "path": "pages/more/more",
+      "style": {
+        "navigationBarTitleText": "更多"
+      }
+    },
+    {
+      "path": "pages/shop/shop",
+      "style": {
+        "navigationBarTitleText": "商城"
+      }
+    },
+    {
+      "path": "pages/video/video",
+      "style": {
+        "navigationBarTitleText": "视频"
+      }
+    },
+    {
       "path": "pages/main/main",
       "style": {
         "navigationBarTitleText": "主页"
@@ -72,23 +90,27 @@
   
   "tabBar": {
     "color": "#7A7E83",
-    "selectedColor": "#3cc51f",
+    "selectedColor": "#ffffff",
     "borderStyle": "black",
-    "backgroundColor": "#ffffff",
+    "backgroundColor": "#1A1D2F",
+    "fontSize":"32rpx",
     "position":"bottom",
-    "iconWidth": "24px",
     "list": [
       {
         "pagePath": "pages/index/index",
-        "iconPath": "./static/images/home.png",
-        "selectedIconPath": "./static/images/home-filled.png",
         "text": "首页"
       },
       {
-        "pagePath": "pages/blueToothTest/index",
-        "iconPath": "./static/images/setting.png",
-        "selectedIconPath": "./static/images/setting-filled.png",
-        "text": "设置"
+        "pagePath": "pages/more/more",
+        "text": "更多"
+      },
+      {
+        "pagePath": "pages/shop/shop",
+        "text": "商城"
+      },
+      {
+        "pagePath": "pages/video/video",
+        "text": "视频"
       }
     ]
   }
