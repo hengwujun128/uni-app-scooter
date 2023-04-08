@@ -39,7 +39,7 @@ const pages = reactive([
 
 uni.navigateTo({
   // url: '../home/home'
-  url: '../main/main'
+  url: '../settings/index'
 })
 </script>
 
