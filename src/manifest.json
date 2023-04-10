@@ -58,9 +58,10 @@
     // 测试账号
     "appid": "wxa437c6cbf81cb490",
     "setting": {
-      "urlCheck": false
+      "urlCheck": false,
+      "ignoreDevUnusedFiles" : false
     },
-    "usingComponents": true
+    "usingComponents": true,
   },
   "mp-alipay": {
     "usingComponents": true
