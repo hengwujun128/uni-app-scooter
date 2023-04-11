@@ -31,50 +31,127 @@
         <image src="/static/images/scooter/背景.png" class="back" mode="widthFix"></image>
         <image class="arc" src="/static/images/scooter/圆弧.png" mode="widthFix"></image>
         <image :style="pointStyle" class="point" src="/static/images/scooter/指针.png" mode="widthFix"></image>
-        <!-- 电池 -->
+        <!-- tips -->
+        <u-icon
+          width="80"
+          height="80"
+          space="10"
+          class="speed-tips"
+          name="/static/images/scooter/icon-speedTips.png"
+        ></u-icon>
+        <view class="speed-data">
+          <text class="speed-value">28</text>
+          <text class="speed-unit">km/h</text>
+        </view>
         <view class="power">
-          <!-- <image
-            class="power-back power-back__first"
-            src="/static/images/scooter/power/back-1.png"
-            mode="widthFix"
-          ></image>
-          <image
-            class="power-back power-back__second"
-            src="/static/images/scooter/power/back-2.png"
-            mode="widthFix"
-          ></image> -->
-          <!-- 坑爹,直接使用带背景的电池即可 -->
-          <image class="power-battery" src="/static/images/scooter/power/0.png" mode="widthFix"></image>
-
-          <!-- 这里应该使用 background -->
-          <!-- <view class="battery-wrapper">
-            <image class="power-battery" src="/static/images/scooter/power/0.png" mode="widthFix"></image>
-          </view> -->
-          <!-- <image class="power-battery" src="/static/images/scooter/power/battery.png" mode="widthFix"></image> -->
+          <image class="power-battery" :src="batteryPath" mode="widthFix"></image>
         </view>
       </view>
-
-      <view class="actions"></view>
+      <view class="actions">
+        <view class="row row-action">
+          <view class="col col-action" hover-class="background-hover-class">
+            <u-icon
+              width="80"
+              height="80"
+              space="10"
+              label="锁定"
+              label-color="#fff"
+              margin-left="12rpx"
+              name="/static/images/scooter/actions/icon-lock.png"
+            ></u-icon>
+          </view>
+          <view class="col col-action" hover-class="background-hover-class">
+            <u-icon
+              width="80"
+              height="80"
+              space="10"
+              label="助力"
+              label-color="#fff"
+              margin-left="12rpx"
+              name="/static/images/scooter/actions/icon-assistance.png"
+            ></u-icon>
+          </view>
+        </view>
+        <view class="row row-action">
+          <view class="col col-action" hover-class="background-hover-class">
+            <u-icon
+              width="80"
+              height="80"
+              space="10"
+              label="锁定"
+              label-color="#fff"
+              margin-left="12rpx"
+              name="/static/images/scooter/actions/icon-light__open.png"
+            ></u-icon>
+          </view>
+          <view class="col col-action" hover-class="background-hover-class">
+            <u-icon
+              width="80"
+              height="80"
+              space="10"
+              label="低速"
+              label-color="#fff"
+              margin-left="12rpx"
+              name="/static/images/scooter/actions/icon-speed__low.png"
+            ></u-icon>
+          </view>
+        </view>
+      </view>
     </view>
   </view>
 </template>
 
 <script setup lang="ts">
-import { ref, Ref, onMounted } from 'vue'
+import { ref, Ref, onMounted, computed } from 'vue'
 import useDashBoard, { option } from './useDashBoard.ts'
+
+import status0 from '../../static/images/scooter/power/0.png'
+import status1 from '../../static/images/scooter/power/10.png'
+import status2 from '../../static/images/scooter/power/20.png'
+import status3 from '../../static/images/scooter/power/30.png'
+import status4 from '../../static/images/scooter/power/40.png'
+import status5 from '../../static/images/scooter/power/50.png'
+import status6 from '../../static/images/scooter/power/60.png'
+import status7 from '../../static/images/scooter/power/70.png'
+import status8 from '../../static/images/scooter/power/80.png'
+import status9 from '../../static/images/scooter/power/90.png'
+import status10 from '../../static/images/scooter/power/100.png'
 
 const chartRef: Ref | null = ref(null)
 
 const { inited } = useDashBoard(chartRef)
 const pointStyle = ref({})
 
+const batteryStatus = ref(0)
+
+const batteryPath = computed(() => {
+  const valuePathMap = new Map([
+    [0, status0],
+    [1, status1],
+    [2, status2],
+    [3, status3],
+    [4, status4],
+    [5, status5],
+    [6, status6],
+    [7, status7],
+    [8, status8],
+    [9, status9],
+    [10, status10]
+  ])
+  return valuePathMap.get(batteryStatus.value)
+})
+
 const setDegree = () => {
   const deg = Math.floor(Math.random() * 100) + 1
+  batteryStatus.value = Math.floor(Math.random() * 10) + 1
+
   pointStyle.value = {
     transition: 'all linear 1s',
     transform: `translate(-50%, -50%) rotate(${deg}deg)`
   }
 }
+
+computed
 onMounted(() => {
   setInterval(() => {
     setDegree()
@@ -116,62 +193,73 @@ onMounted(() => {
     }
   }
   .body {
+    height: calc(100vh - 220rpx);
     .dashBoard {
       width: 100vw;
-      height: 50vh;
+      height: 46vh;
       margin: 0 auto;
       position: relative;
     }
 
     .back {
+      width: 100%;
       position: absolute;
       left: 50%;
       top: 50%;
       transform: translate(-50%, -50%);
     }
     .arc {
+      width: 100%;
       position: absolute;
       left: 50%;
       top: 50%;
       transform: translate(-50%, -50%);
     }
     .point {
+      width: 100%;
       position: absolute;
       left: 50%;
       top: 50%;
       transform: translate(-50%, -50%);
+    }
+    .speed-tips {
+      position: absolute;
+      left: 50%;
+      top: 15%;
+      transform: translate(-50%, -50%);
+    }
+    .speed-data {
+      position: absolute;
+      left: 50%;
+      top: 240rpx;
+      transform: translate(-50%, -50%);
+    }
+    .speed-value {
+      display: block;
+      font-size: 200rpx;
+      line-height: 200rpx;
+    }
+    .speed-unit {
+      display: block;
+      text-align: center;
+      opacity: 0.5;
     }
     .power {
       position: relative;
       left: 50%;
-      top: 70%;
+      top: 80%;
       transform: translate(-50%, -50%);
       margin: 0 auto;
+      text-align: center;
     }
-    .power-back {
-      position: absolute;
-      left: 50%;
-      top: 50%;
-      transform: translate(-50%, -50%);
-    }
-    .power-back__first {
-    }
-    .power-back__second {
-      position: absolute;
-      left: 50%;
-      top: 50%;
-      transform: translate(-50%, -50%);
-    }
+
     .power-battery {
-      position: absolute;
-      left: 50%;
-      top: 50%;
-      transform: translate(-50%, -50%);
+      // position: absolute;
+      // left: 50%;
+      // top: 50%;
+      // transform: translate(-50%, -50%);
       width: 300rpx;
-      // margin-left: -103rpx;
-      // margin-top: -70rpx;
     }
-    //
     .battery-wrapper {
       position: absolute;
       left: 50%;
@@ -183,6 +271,37 @@ onMounted(() => {
       background: url(/static/images/scooter/power/battery.png) no-repeat;
       background-size: contain;
     }
+  }
+
+  .actions {
+    padding: 0rpx 24rpx;
+    height: calc(100% - 46vh);
+    padding-top: 50rpx;
+    background-color: rgb(49, 53, 76);
+    border-top-left-radius: 80rpx;
+    border-top-right-radius: 80rpx;
+  }
+  .row-action {
+    &:nth-last-child(1) {
+      margin-top: 74rpx;
+    }
+  }
+  .col-action {
+    width: 280rpx;
+    height: 130rpx;
+    // background: linear-gradient(180deg, #5b5f77 0%, #1c1f2e 100%);
+    // border: 5rpx solid #0b0d16;
+    // border-radius: 100rpx;
+    background: url(/static/images/scooter/actions/btn__active.png) no-repeat;
+    background-size: contain;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .background-hover-class {
+    background: url(/static/images/scooter/actions/btn__default.png) no-repeat;
+    background-size: contain;
   }
 }
 </style>
