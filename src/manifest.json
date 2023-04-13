@@ -1,8 +1,8 @@
 {
-  "name": "uni-vue3-template",
+  "name": "scooter-1.0.0",
 
-  "appid": "__UNI__DA16D5F",
-  "description": "",
+  "appid": "__UNI__B15D122",
+  "description": "一款关于 scooter 的轻量的小程序应用",
   "versionName": "1.0.0",
   "versionCode": "100",
   "transformPx": false,

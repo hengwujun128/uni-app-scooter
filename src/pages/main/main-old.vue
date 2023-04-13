@@ -50,50 +50,62 @@
       <view class="actions">
         <view class="row row-action">
           <view class="col col-action" hover-class="background-hover-class">
-            <u-icon
-              width="80"
-              height="80"
-              space="10"
-              label="锁定"
-              label-color="#fff"
-              margin-left="12rpx"
-              name="/static/images/scooter/actions/icon-lock.png"
-            ></u-icon>
+            <view class="col-action__inner">
+              <u-icon
+                width="80"
+                height="80"
+                space="10"
+                label="锁定"
+                label-color="#fff"
+                margin-left="12rpx"
+                hover-class="btn-hover-class"
+                name="/static/images/scooter/actions/icon-lock.png"
+              ></u-icon>
+            </view>
           </view>
           <view class="col col-action" hover-class="background-hover-class">
-            <u-icon
-              width="80"
-              height="80"
-              space="10"
-              label="助力"
-              label-color="#fff"
-              margin-left="12rpx"
-              name="/static/images/scooter/actions/icon-assistance.png"
-            ></u-icon>
+            <view class="col-action__inner">
+              <u-icon
+                width="80"
+                height="80"
+                space="10"
+                label="助力"
+                label-color="#fff"
+                margin-left="12rpx"
+                hover-class="btn-hover-class"
+                name="/static/images/scooter/actions/icon-assistance.png"
+              ></u-icon>
+            </view>
           </view>
         </view>
         <view class="row row-action">
           <view class="col col-action" hover-class="background-hover-class">
-            <u-icon
-              width="80"
-              height="80"
-              space="10"
-              label="锁定"
-              label-color="#fff"
-              margin-left="12rpx"
-              name="/static/images/scooter/actions/icon-light__open.png"
-            ></u-icon>
+            <view class="col-action__inner">
+              <u-icon
+                width="80"
+                height="80"
+                space="10"
+                label="锁定"
+                label-color="#fff"
+                margin-left="12rpx"
+                hover-class="btn-hover-class"
+                name="/static/images/scooter/actions/icon-light__open.png"
+              ></u-icon>
+            </view>
           </view>
           <view class="col col-action" hover-class="background-hover-class">
-            <u-icon
-              width="80"
-              height="80"
-              space="10"
-              label="低速"
-              label-color="#fff"
-              margin-left="12rpx"
-              name="/static/images/scooter/actions/icon-speed__low.png"
-            ></u-icon>
+            <view class="col-action__inner">
+              <u-icon
+                width="80"
+                height="80"
+                space="10"
+                label="低速"
+                label-color="#fff"
+                margin-left="12rpx"
+                hover-class="btn-hover-class"
+                name="/static/images/scooter/actions/icon-speed__low.png"
+              ></u-icon>
+            </view>
           </view>
         </view>
       </view>
@@ -289,12 +301,22 @@ onMounted(() => {
   .col-action {
     width: 280rpx;
     height: 130rpx;
-    // background: linear-gradient(180deg, #5b5f77 0%, #1c1f2e 100%);
-    // border: 5rpx solid #0b0d16;
-    // border-radius: 100rpx;
-    background: url(/static/images/scooter/actions/btn__active.png) no-repeat;
-    background-size: contain;
+    background: linear-gradient(180deg, #5b5f77 0%, #1c1f2e 100%);
+    border: 5rpx solid #0b0d16;
+    border-radius: 100rpx;
+    // background: url(/static/images/scooter/actions/btn__active.png) no-repeat;
+    // background-size: contain;
 
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .col-action__inner {
+    width: 260rpx;
+    height: 108rpx;
+    background: linear-gradient(360deg, #3e4054 0%, #181c2d 100%);
+    // background: linear-gradient(360deg, #2d3043 0%, #2d3043 100%);
+    border-radius: 100rpx;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -302,6 +324,8 @@ onMounted(() => {
   .background-hover-class {
     background: url(/static/images/scooter/actions/btn__default.png) no-repeat;
     background-size: contain;
+  }
+  .btn-hover-class {
   }
 }
 </style>
