@@ -49,61 +49,65 @@
       </view>
       <view class="actions">
         <view class="row row-action">
-          <view class="col col-action" hover-class="background-hover-class">
+          <view class="col col-action" hover-class="background-hover-class" @click="lockHandler">
             <view class="col-action__inner">
               <u-icon
-                width="80"
-                height="80"
-                space="10"
+                width="45"
+                height="45"
                 label="锁定"
+                label-size="36"
                 label-color="#fff"
                 margin-left="12rpx"
+                margin-top="12rpx"
                 hover-class="btn-hover-class"
-                name="/static/images/scooter/actions/icon-lock.png"
+                :name="icon('lock')"
               ></u-icon>
             </view>
           </view>
-          <view class="col col-action" hover-class="background-hover-class">
+          <view class="col col-action" hover-class="background-hover-class" @click="assistanceHandler">
             <view class="col-action__inner">
               <u-icon
-                width="80"
-                height="80"
+                width="42"
+                height="44"
                 space="10"
                 label="助力"
+                label-size="36"
                 label-color="#fff"
                 margin-left="12rpx"
                 hover-class="btn-hover-class"
-                name="/static/images/scooter/actions/icon-assistance.png"
+                :name="icon('assistance')"
               ></u-icon>
             </view>
           </view>
         </view>
         <view class="row row-action">
-          <view class="col col-action" hover-class="background-hover-class">
+          <view class="col col-action" hover-class="background-hover-class" @click="lightHandler">
             <view class="col-action__inner">
               <u-icon
-                width="80"
-                height="80"
+                width="50"
+                height="50"
                 space="10"
-                label="锁定"
+                label="灯光"
+                label-size="36"
                 label-color="#fff"
                 margin-left="12rpx"
                 hover-class="btn-hover-class"
-                name="/static/images/scooter/actions/icon-light__open.png"
+                :name="icon('light')"
               ></u-icon>
             </view>
           </view>
-          <view class="col col-action" hover-class="background-hover-class">
+          <view class="col col-action" hover-class="background-hover-class" @click="speedHandler">
             <view class="col-action__inner">
               <u-icon
-                width="80"
-                height="80"
+                width="50"
+                height="50"
                 space="10"
                 label="低速"
+                label-size="36"
                 label-color="#fff"
                 margin-left="12rpx"
                 hover-class="btn-hover-class"
-                name="/static/images/scooter/actions/icon-speed__low.png"
+                :name="icon('speed')"
               ></u-icon>
             </view>
           </view>
@@ -114,7 +118,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, Ref, onMounted, computed } from 'vue'
+import { ref, reactive, Ref, onMounted, computed } from 'vue'
 import useDashBoard, { option } from './useDashBoard.ts'
 
 import status0 from '../../static/images/scooter/power/0.png'
@@ -153,6 +157,43 @@ const batteryPath = computed(() => {
   return valuePathMap.get(batteryStatus.value)
 })
 
+// 根据 icon
+const icon = (type: string) => {
+  let iconPath = ''
+
+  if (type === 'lock') {
+    return `/static/images/scooter/actions/${pageState.lock ? 'icon-lock__locked' : 'icon-lock__unlocked'}.png`
+  }
+
+  if (type === 'assistance') {
+    return `/static/images/scooter/actions/${
+      pageState.assistance ? 'icon-assistance__high' : 'icon-assistance__low'
+    }.png`
+  }
+
+  if (type === 'light') {
+    return `/static/images/scooter/actions/${pageState.light ? 'icon-light__high' : 'icon-light__low'}.png`
+  }
+
+  if (type === 'speed') {
+    if (pageState.speed === 1) {
+      iconPath = '/static/images/scooter/actions/icon-speed__medium.png'
+    } else if (pageState.speed === 2) {
+      iconPath = '/static/images/scooter/actions/icon-speed__high.png'
+    } else {
+      iconPath = '/static/images/scooter/actions/icon-speed__low.png'
+    }
+    return iconPath
+  }
+}
+
+const pageState = reactive({
+  lock: false,
+  assistance: false,
+  light: false,
+  speed: 0 // 0 低速 1 中速 2 高速
+})
+
 const setDegree = () => {
   const deg = Math.floor(Math.random() * 100) + 1
   batteryStatus.value = Math.floor(Math.random() * 10) + 1
@@ -162,8 +203,30 @@ const setDegree = () => {
     transform: `translate(-50%, -50%) rotate(${deg}deg)`
   }
 }
+// 锁定
+const lockHandler = () => {
+  // setCmd
+  pageState.lock = !pageState.lock
+}
+// 助力
+const assistanceHandler = () => {
+  // setCmd
+  pageState.assistance = !pageState.assistance
+}
+// 灯光
+const lightHandler = () => {
+  // setCmd
+  pageState.light = !pageState.light
+}
+// 低速
+const speedHandler = () => {
+  // setCmd 根据接口返回 确定是 speed
+  if (pageState.speed === 2) {
+    pageState.speed = 0
+  }
+  pageState.speed = pageState.speed + 1
+}
 
-computed
 onMounted(() => {
   setInterval(() => {
     setDegree()
@@ -302,7 +365,7 @@ onMounted(() => {
     width: 280rpx;
     height: 130rpx;
     background: linear-gradient(180deg, #5b5f77 0%, #1c1f2e 100%);
-    border: 5rpx solid #0b0d16;
+    border: 6rpx solid #0b0d16;
     border-radius: 100rpx;
     // background: url(/static/images/scooter/actions/btn__active.png) no-repeat;
     // background-size: contain;
@@ -312,10 +375,9 @@ onMounted(() => {
     justify-content: center;
   }
   .col-action__inner {
-    width: 260rpx;
-    height: 108rpx;
+    width: 250rpx;
+    height: 100rpx;
     background: linear-gradient(360deg, #3e4054 0%, #181c2d 100%);
-    // background: linear-gradient(360deg, #2d3043 0%, #2d3043 100%);
     border-radius: 100rpx;
     display: flex;
     align-items: center;
