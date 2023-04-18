@@ -33,8 +33,8 @@
         <image :style="pointStyle" class="point" src="/static/images/scooter/指针.png" mode="widthFix"></image>
         <!-- tips -->
         <u-icon
-          width="80"
-          height="80"
+          width="60rpx"
+          height="28rpx"
           space="10"
           class="speed-tips"
           name="/static/images/scooter/icon-speedTips.png"
@@ -46,8 +46,8 @@
         <view class="power">
           <image class="power-battery" :src="batteryPath" mode="widthFix"></image>
         </view>
-        <view class="row baseInfo">
-          <view class="col">
+        <view class="baseInfo baseInfo__first">
+          <view class="baseInfo-item">
             <u-icon
               width="45"
               height="45"
@@ -56,12 +56,12 @@
               hover-class="btn-hover-class"
               name="/static/images/scooter/icon-weather.svg"
             ></u-icon>
-            <view class="weather">
+            <view class="label weather">
               <text>天气</text>
-              <text>15°</text>
+              <text class="value">15°</text>
             </view>
           </view>
-          <view class="col">
+          <view class="baseInfo-item">
             <u-icon
               width="45"
               height="45"
@@ -70,14 +70,14 @@
               hover-class="btn-hover-class"
               name="/static/images/scooter/icon-controller.svg"
             ></u-icon>
-            <view class="controller">
+            <view class="label controller">
               <text>控制器</text>
-              <text>15°</text>
+              <text class="value">15°</text>
             </view>
           </view>
         </view>
-        <view class="row baseInfo">
-          <view class="col">
+        <view class="baseInfo baseInfo__secondary">
+          <view class="baseInfo-item">
             <u-icon
               width="45"
               height="45"
@@ -86,12 +86,12 @@
               hover-class="btn-hover-class"
               name="/static/images/scooter/icon-altitude.svg"
             ></u-icon>
-            <view class="altitude">
+            <view class="label altitude">
               <text>海拔</text>
-              <text>124m</text>
+              <text class="value">124m</text>
             </view>
           </view>
-          <view class="col">
+          <view class="baseInfo-item">
             <u-icon
               width="45"
               height="45"
@@ -100,9 +100,9 @@
               hover-class="btn-hover-class"
               name="/static/images/scooter/icon-voltage.svg"
             ></u-icon>
-            <view class="voltage">
+            <view class="label voltage">
               <text>电压</text>
-              <text>124°</text>
+              <text class="value">124°</text>
             </view>
           </view>
         </view>
@@ -295,6 +295,8 @@ onMounted(() => {
 </script>
 
 <style lang="scss" scoped>
+$dashboard-height: 580rpx;
+$dashboard-width: 580rpx;
 .main {
   height: 100vh;
   width: 100vw;
@@ -315,8 +317,6 @@ onMounted(() => {
   }
   .col {
     text-align: center;
-    display: flex;
-    align-items: center;
   }
   .title-wrapper {
     flex-direction: column;
@@ -332,9 +332,14 @@ onMounted(() => {
   }
   .body {
     height: calc(100vh - 220rpx);
+    // background-color: rgb(47, 50, 73);
+
     .dashBoard {
-      width: 100vw;
-      height: 46vh;
+      // width: 100vw;
+      // height: 46vh;
+      width: $dashboard-height;
+      height: $dashboard-width;
+
       margin: 0 auto;
       position: relative;
     }
@@ -363,7 +368,8 @@ onMounted(() => {
     .speed-tips {
       position: absolute;
       left: 50%;
-      top: 15%;
+      // top: 15%;
+      top: 20%;
       transform: translate(-50%, -50%);
     }
     .speed-data {
@@ -383,44 +389,62 @@ onMounted(() => {
       opacity: 0.5;
     }
     .power {
-      position: relative;
+      position: absolute;
       left: 50%;
-      top: 80%;
+      top: 74%;
       transform: translate(-50%, -50%);
       margin: 0 auto;
       text-align: center;
     }
 
     .power-battery {
-      // position: absolute;
-      // left: 50%;
-      // top: 50%;
-      // transform: translate(-50%, -50%);
-      width: 300rpx;
+      // width: 206rpx;
+      width: 288rpx;
     }
-    .battery-wrapper {
-      position: absolute;
-      left: 50%;
-      top: 50%;
-      width: 206rpx;
-      height: 96rpx;
-      margin-left: -103rpx;
-      margin-top: -70rpx;
-      background: url(/static/images/scooter/power/battery.png) no-repeat;
-      background-size: contain;
-    }
+
     .baseInfo {
-      position: relative;
+      position: absolute;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      // width: 100%;
+      padding: 20rpx 0rpx;
+      left: -40rpx;
+      right: -40rpx;
+      &-item {
+        display: flex;
+        align-items: center;
+        background: #34374e;
+        width: 184rpx;
+        height: 88rpx;
+        border: 1rpx solid #383c53;
+        border-radius: 50rpx;
+        padding: 12rpx 20rpx;
+      }
+      .label {
+        flex: 1;
+        margin-left: 12rpx;
+      }
       text {
         display: block;
+        font-size: 22rpx;
       }
+      .value {
+        font-size: 28rpx;
+      }
+    }
+    .baseInfo__first {
+      top: 0px;
+    }
+    .baseInfo__secondary {
+      bottom: 0px;
     }
   }
 
   .actions {
     position: relative;
     padding: 0rpx 24rpx;
-    height: calc(100% - 46vh);
+    height: calc(100% - $dashboard-height);
     padding-top: 50rpx;
     background-color: rgb(49, 53, 76);
     border-top-left-radius: 80rpx;
