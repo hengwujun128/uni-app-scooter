@@ -46,6 +46,66 @@
         <view class="power">
           <image class="power-battery" :src="batteryPath" mode="widthFix"></image>
         </view>
+        <view class="row baseInfo">
+          <view class="col">
+            <u-icon
+              width="45"
+              height="45"
+              margin-left="12rpx"
+              margin-top="12rpx"
+              hover-class="btn-hover-class"
+              name="/static/images/scooter/icon-weather.svg"
+            ></u-icon>
+            <view class="weather">
+              <text>天气</text>
+              <text>15°</text>
+            </view>
+          </view>
+          <view class="col">
+            <u-icon
+              width="45"
+              height="45"
+              margin-left="12rpx"
+              margin-top="12rpx"
+              hover-class="btn-hover-class"
+              name="/static/images/scooter/icon-controller.svg"
+            ></u-icon>
+            <view class="controller">
+              <text>控制器</text>
+              <text>15°</text>
+            </view>
+          </view>
+        </view>
+        <view class="row baseInfo">
+          <view class="col">
+            <u-icon
+              width="45"
+              height="45"
+              margin-left="12rpx"
+              margin-top="12rpx"
+              hover-class="btn-hover-class"
+              name="/static/images/scooter/icon-altitude.svg"
+            ></u-icon>
+            <view class="altitude">
+              <text>海拔</text>
+              <text>124m</text>
+            </view>
+          </view>
+          <view class="col">
+            <u-icon
+              width="45"
+              height="45"
+              margin-left="12rpx"
+              margin-top="12rpx"
+              hover-class="btn-hover-class"
+              name="/static/images/scooter/icon-voltage.svg"
+            ></u-icon>
+            <view class="voltage">
+              <text>电压</text>
+              <text>124°</text>
+            </view>
+          </view>
+        </view>
       </view>
       <view class="actions">
         <view class="row row-action">
@@ -255,8 +315,11 @@ onMounted(() => {
   }
   .col {
     text-align: center;
+    display: flex;
+    align-items: center;
   }
   .title-wrapper {
+    flex-direction: column;
     flex: 1;
     .title {
       font-size: 36rpx;
@@ -346,9 +409,16 @@ onMounted(() => {
       background: url(/static/images/scooter/power/battery.png) no-repeat;
       background-size: contain;
     }
+    .baseInfo {
+      position: relative;
+      text {
+        display: block;
+      }
+    }
   }
 
   .actions {
+    position: relative;
     padding: 0rpx 24rpx;
     height: calc(100% - 46vh);
     padding-top: 50rpx;
