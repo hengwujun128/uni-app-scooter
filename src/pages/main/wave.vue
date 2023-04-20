@@ -43,7 +43,6 @@ const animationName = computed(() => {
 })
 
 const deviceName = computed(() => {
-  // @ts-ignore
   return blueDeviceList.value[0]?.name
 })
 
@@ -52,6 +51,8 @@ const close = () => {
   blueDeviceList.value = []
   popupRef.value.close()
 }
+
+// 蓝牙连接成功之后要跳转到首页
 const confirm = () => {
   startCollect(blueDeviceList.value[0]).then((res) => {
     if (res.status === 200) {
@@ -65,38 +66,41 @@ const confirm = () => {
 }
 
 const init = async () => {
-  searchStatus.value = 0
-  const initResult = await initAdapter()
-  searchStatus.value = 1
-
-  //@ts-ignore
-  const discoverResult = initResult.status === 200 && (await startDiscoveryAndFound())
-  //@ts-ignore
-  if (discoverResult.status === 200 && blueDeviceList.value.length) {
-    // uni.showToast({
-    //   title: blueDeviceList.value[0].name,
-    //   icon: 'success'
-    // })
-    //@ts-ignore
-    // targetDevice.value = blueDeviceList.value[0]
-    popupRef.value?.open()
+  try {
+    const initResult: any = await initAdapter()
+    searchStatus.value = 1
+    const discoverResult: any = initResult.status === 200 && (await startDiscoveryAndFound())
+    if (discoverResult.status === 200 && blueDeviceList.value.length) {
+      popupRef.value?.open()
+    }
+  } catch (e) {
+    // @ts-ignore
+    const errMsg = e.errMsg
+    uni.showModal({
+      title: '提示',
+      content: errMsg,
+      success: function (res) {
+        if (res.confirm) {
+          console.log('用户点击确定')
+          uni.navigateBack({ delta: 1 })
+        } else if (res.cancel) {
+          console.log('用户点击取消')
+          uni.navigateBack({ delta: 1 })
+        }
+      }
+    })
   }
 }
 
 onMounted(() => {
-  // searchStatus.value = 1
-  // setTimeout(() => {
-  //   popupRef.value.open()
-  // }, 1000 * 2)
-
   init()
 })
 </script>
 
 <style lang="scss">
 .wave {
-  // background: #3e3e3e;
-  background: #000000;
+  background-color: rgba(49, 53, 76);
+
   width: 100vw;
   // height: calc(100vh - 46px);
   height: calc(100vh - 0px);

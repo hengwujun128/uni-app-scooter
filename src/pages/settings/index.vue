@@ -13,14 +13,14 @@
     >
       <template #left>
         <view class="icon-left">
-          <!-- <u-icon
-            width="20"
-            height="40"
+          <u-icon
+            width="80"
+            height="80"
+            size="60"
             space="10px"
             hover-class="hover-class"
-            name="/static/images/scooter/icon-left.svg"
-          ></u-icon> -->
-          <uni-icons type="back" size="30" color="#fff"></uni-icons>
+            name="/static/images/scooter/btn-back.svg"
+          ></u-icon>
         </view>
       </template>
     </uni-nav-bar>

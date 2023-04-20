@@ -2,7 +2,7 @@
 {
   "pages": [
     {
-      "path": "pages/main/main-old",
+      "path": "pages/main/main",
       "style": {
         "navigationBarTitleText": "首页"
       }
@@ -26,9 +26,8 @@
       }
     },
     {
-      "path": "pages/main/main",
-      "style": {
-        "navigationBarTitleText": "主页"
+      "path": "pages/main/wave",
+      "style":{
       }
     },
     {
@@ -97,7 +96,7 @@
     "position":"bottom",
     "list": [
       {
-        "pagePath": "pages/main/main-old",
+        "pagePath": "pages/main/main",
         "text": "首页"
       },
       {

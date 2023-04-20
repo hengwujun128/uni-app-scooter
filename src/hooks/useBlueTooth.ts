@@ -94,7 +94,6 @@ const useBlueTooth = () => {
 
   // 1. 初始化蓝牙适配器
   const initAdapter = () => {
-    uni.closeBluetoothAdapter({})
     return new Promise((resolve, reject) => {
       uni.openBluetoothAdapter({
         success(res) {
@@ -276,6 +275,7 @@ const useBlueTooth = () => {
     getServicesByDeviceId,
     getCharacteristicsByDeviceIdAndServiceId,
 
+    notify,
     sendMessageHandler,
     /* ----------------------------------- 变量 ----------------------------------- */
     blueDeviceList

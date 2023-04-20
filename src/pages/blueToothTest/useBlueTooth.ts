@@ -21,6 +21,16 @@ const useBlueTooth = () => {
     }
   }
 
+  interface ErrorObject {
+    errMsg?: string
+  }
+  const errorHandler = (e: ErrorObject) => {
+    uni.showToast({
+      title: e.errMsg,
+      icon: 'error'
+    })
+  }
+
   const DEVICE_ID = '' // 指定设备 ID
   const SERVER_ID = '' // 指定设备下的指定服务
   const CHARACTERISTIC_ID = '' //  指定设备下的指定服务下的指定特征值

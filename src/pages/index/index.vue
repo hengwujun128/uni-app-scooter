@@ -38,8 +38,8 @@ const pages = reactive([
 ])
 
 uni.navigateTo({
-  url: '../home/home'
-  // url: '../more/more'
+  // url: '../home/home'
+  url: '../more/more'
 })
 </script>
 

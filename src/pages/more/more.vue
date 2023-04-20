@@ -19,7 +19,7 @@
             height="80"
             size="60"
             hover-class="hover-class"
-            name="/static/images/scooter/icon-blueTooth.png"
+            name="/static/images/scooter/btn-blueTooth.svg"
           ></u-icon>
         </view>
       </template>
@@ -31,7 +31,7 @@
           size="60"
           space="10px"
           hover-class="hover-class"
-          name="/static/images/scooter/icon-setting.png"
+          name="/static/images/scooter/btn-setting.svg"
         ></u-icon>
       </template>
     </uni-nav-bar>
