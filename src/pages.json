@@ -108,7 +108,8 @@
         "text": "商城"
       },
       {
-        "pagePath": "pages/video/video",
+        
+        "pagePath":"pages/blueToothTest/index",
         "text": "视频"
       }
     ]

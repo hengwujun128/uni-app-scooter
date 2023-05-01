@@ -45,7 +45,7 @@
           name="/static/images/scooter/icon-speedTips.png"
         ></u-icon>
         <view class="speed-data">
-          <text class="speed-value">28</text>
+          <text class="speed-value">{{ pageState.speed }}</text>
           <text class="speed-unit">km/h</text>
         </view>
         <view class="power">
@@ -63,7 +63,7 @@
             ></u-icon>
             <view class="label weather">
               <text>天气</text>
-              <text class="value">15°</text>
+              <text class="value">{{ pageState.weather }} °</text>
             </view>
           </view>
           <view class="baseInfo-item">
@@ -77,7 +77,7 @@
             ></u-icon>
             <view class="label controller">
               <text>控制器</text>
-              <text class="value">15°</text>
+              <text class="value">{{ pageState.temp }}°</text>
             </view>
           </view>
         </view>
@@ -93,7 +93,7 @@
             ></u-icon>
             <view class="label altitude">
               <text>海拔</text>
-              <text class="value">124m</text>
+              <text class="value">{{ pageState.altitude }}m</text>
             </view>
           </view>
           <view class="baseInfo-item">
@@ -183,7 +183,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, Ref, onMounted, computed } from 'vue'
+import { onLoad } from '@dcloudio/uni-app'
+
+import { ref, reactive, Ref, onMounted, computed, watch } from 'vue'
+import { useBlueToothStore } from '@/store'
+
 import useDashBoard, { option } from './useDashBoard.ts'
 
 import status0 from '../../static/images/scooter/power/0.png'
@@ -198,12 +202,67 @@ import status8 from '../../static/images/scooter/power/80.png'
 import status9 from '../../static/images/scooter/power/90.png'
 import status10 from '../../static/images/scooter/power/100.png'
 
-const chartRef: Ref | null = ref(null)
+import useGaoDe from '../../hooks/useGaoDe.ts'
+import useBlueTooth from '../../hooks/useBlueTooth.ts'
+import { useBleData } from '../../hooks/useBleData.ts'
+import { useSystemInfo } from '../../hooks/useSystemInfo.ts'
 
-const { inited } = useDashBoard(chartRef)
-const pointStyle = ref({})
+const { getInstance, getWeather } = useGaoDe()
+
+const {
+  getServicesByDeviceId,
+  getCharacteristicsByDeviceIdAndServiceId,
+  notify,
+
+  deviceId,
+  serviceId,
+  characteristicId
+} = useBlueTooth()
+
+const { blueBoothData, getBleData } = useBleData(deviceId.value, serviceId.value, characteristicId.value)
+
+const { getLocation } = useSystemInfo()
+
+// 获取自定义的store
+const store = useBlueToothStore()
+// const chartRef: Ref | null = ref(null)
+
+// const { inited } = useDashBoard(chartRef)
+// const pointStyle = ref({
+//   transition: 'all linear 1s',
+//   transform: `translate(-50%, -50%) rotate(${-70}deg)`
+// })
 
 const batteryStatus = ref(0)
+const device = computed(() => store.device)
+
+// 根据速度设置角度
+const degree = computed(() => {
+  const maxSpeed = 200
+  const maxDegree = 250
+  const percentage = pageState.speed / maxSpeed
+  console.log({
+    speed: pageState.speed,
+    percentage: percentage
+  })
+  // const rotateRange = [-70, 180] //
+  let res = 0
+  if (percentage === 0) {
+    res = -70
+  } else if (percentage > 1) {
+    res = 180
+  } else {
+    res = maxDegree * percentage - 70
+  }
+  return res
+})
+
+const pointStyle = computed(() => {
+  return {
+    transition: 'all linear 1s',
+    transform: `translate(-50%, -50%) rotate(${degree.value}deg)`
+  }
+})
 
 const batteryPath = computed(() => {
   const valuePathMap = new Map([
@@ -256,17 +315,19 @@ const pageState = reactive({
   lock: false,
   assistance: false,
   light: false,
-  speed: 0 // 0 低速 1 中速 2 高速
+  speed: 0, //
+  temp: 0,
+  altitude: 0,
+  weather: 0
 })
 
 const setDegree = () => {
-  const deg = Math.floor(Math.random() * 100) + 1
+  // const deg = Math.floor(Math.random() * 100) + 1
   batteryStatus.value = Math.floor(Math.random() * 10) + 1
-
-  pointStyle.value = {
-    transition: 'all linear 1s',
-    transform: `translate(-50%, -50%) rotate(${deg}deg)`
-  }
+  // pointStyle.value = {
+  //   transition: 'all linear 1s',
+  //   transform: `translate(-50%, -50%) rotate(${184}deg)`
+  // }
 }
 // 锁定
 const lockHandler = () => {
@@ -292,13 +353,64 @@ const speedHandler = () => {
   pageState.speed = pageState.speed + 1
 }
 
-const goBlueToothPagePage = () => {
-  uni.navigateTo({
-    url: './wave'
+// 监听消息变化
+const listenValueChange = () => {
+  uni.onBLECharacteristicValueChange((res) => {
+    getBleData(res.value)
+    console.log('----pageState---', blueBoothData)
+    // @ts-ignore
+    pageState.speed = blueBoothData.speed
+    pageState.temp = blueBoothData.temp || 0
   })
 }
 
+const getDataFromBlueTooth = async (id: string) => {
+  try {
+    await getServicesByDeviceId(id)
+    await getCharacteristicsByDeviceIdAndServiceId()
+    const res = await notify()
+    if (res.status === 200) {
+      listenValueChange()
+    }
+  } catch (e) {
+    console.log('错误提示', e)
+    uni.showModal({
+      title: '错误提示',
+      content: '获取蓝牙数据失败',
+      success: function (res) {
+        if (res.confirm) {
+          console.log('retry')
+        } else if (res.cancel) {
+          console.log('用户点击取消')
+        }
+      }
+    })
+  }
+}
+
+// 连接蓝牙获取数据
+watch(
+  () => {
+    return device.value.deviceId
+  },
+  (newValue) => {
+    console.log('device---newValue', newValue)
+    getDataFromBlueTooth(newValue)
+  }
+)
+onLoad((options) => {
+  console.log('options', options)
+})
 onMounted(() => {
+  console.log('device---', device)
+  getLocation().then((res: any) => {
+    pageState.altitude = res.altitude
+  })
+  const instance = getInstance()
+  getWeather(instance).then((res: any) => {
+    pageState.weather = res.temperature.data
+  })
+
   setInterval(() => {
     setDegree()
   }, 3000)

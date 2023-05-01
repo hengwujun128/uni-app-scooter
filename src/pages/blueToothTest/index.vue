@@ -218,6 +218,7 @@ const listenValueChange = () => {
     // console.log('--------最后将16进制转换为ascii码---', result)
     getBleData(res.value)
     console.log('----pageState---', pageState)
+
     // 测试 取消消息监听
   })
 }

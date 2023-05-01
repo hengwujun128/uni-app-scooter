@@ -23,11 +23,12 @@ const useBlueTooth = () => {
 
   interface RES {
     status: number
+    message?: string
   }
 
   const DEVICE_ID = '' // 指定设备 ID
-  const SERVER_ID = '' // 指定设备下的指定服务ID
-  const CHARACTERISTIC_ID = '' //  指定设备下的指定服务下的指定特征值ID
+  const SERVICE_ID = '0000FFE0-0000-1000-8000-00805F9B34FB' // 指定设备下的指定服务ID
+  const CHARACTERISTIC_ID = '0000FFE1-0000-1000-8000-00805F9B34FB' //  指定设备下的指定服务下的指定特征值ID
 
   const DEVICE_NAME = 'Scooter_41360'
 
@@ -40,6 +41,10 @@ const useBlueTooth = () => {
   const deviceId = ref('')
   const serviceId = ref('')
   const characteristicId = ref('')
+
+  const setDeviceId = (id: string) => {
+    deviceId.value = id
+  }
 
   // ArrayBuffer转16进度字符串示例
   const ab2hex = (buffer: ArrayBuffer) => {
@@ -82,18 +87,23 @@ const useBlueTooth = () => {
   }
   // 监听消息变化
   const listenValueChange = () => {
-    uni.onBLECharacteristicValueChange((res) => {
-      // 结果
-      console.log({ 有消息进入: res }) // 结果里有个value值，该值为 ArrayBuffer 类型，所以在控制台无法用肉眼观察到，必须将该值转换为16进制
-      const resHex = ab2hex(res.value)
-      console.log(resHex) // 最后将16进制转换为ascii码，就能看到对应的结果
-      const result = hexCharCodeToStr(resHex)
-      console.log(result)
+    return new Promise((resolve) => {
+      uni.onBLECharacteristicValueChange((res) => {
+        // 结果
+        // console.log({ 有消息进入: res }) // 结果里有个value值，该值为 ArrayBuffer 类型，所以在控制台无法用肉眼观察到，必须将该值转换为16进制
+        // resolve(res)
+        // 每隔 5 秒接受一次数据
+        setInterval(() => {
+          resolve(res)
+        }, 1000 * 5)
+      })
     })
   }
 
   // 1. 初始化蓝牙适配器
   const initAdapter = () => {
+    uni.closeBluetoothAdapter({})
+
     return new Promise((resolve, reject) => {
       uni.openBluetoothAdapter({
         success(res) {
@@ -144,19 +154,22 @@ const useBlueTooth = () => {
   const startCollect = (device: DEVICE): Promise<RES> => {
     return new Promise((resolve, reject) => {
       deviceId.value = device.deviceId
+      console.log('----device---', device)
+
       uni.createBLEConnection({
-        deviceId: deviceId.value,
+        deviceId: device.deviceId,
         success(res) {
           console.log('连接目标设备成功')
           stopDiscovery()
           resolve({ ...res, status: 200 })
         },
         fail(err) {
-          console.log('连接失败')
+          console.log('连接失败: deviceId: deviceId.value', deviceId.value)
           console.error(err)
           uni.showToast({
             title: '连接失败:' + err.errMsg,
-            icon: 'error'
+            icon: 'error',
+            duration: 1000 * 10
           })
           reject({ ...err, status: 0 })
         }
@@ -173,15 +186,22 @@ const useBlueTooth = () => {
    */
 
   // 4-1 获取指定设备的服务列表 - 根据 deviceId
-  const getServicesByDeviceId = (deviceId: string): Promise<any> => {
+  const getServicesByDeviceId = (id: string): Promise<any> => {
+    if (!deviceId.value) {
+      deviceId.value = id
+    }
     return new Promise((resolve, reject) => {
       uni.getBLEDeviceServices({
-        deviceId: deviceId,
+        deviceId: deviceId.value,
         success(res) {
           if (res.services) {
             // todo: 和硬件佬对接 指定服务还有特征值
-            console.log({ deviceId: '当前设备 ID:' + deviceId, '设备服务:': res })
             serviceList.value = res.services
+            const service = serviceList.value.find((item) => item.uuid === SERVICE_ID)
+            console.log('-----查找service---', service)
+            if (service) {
+              serviceId.value = service.uuid
+            }
             resolve(res.services)
           }
         },
@@ -195,12 +215,21 @@ const useBlueTooth = () => {
   // 4-2 获取指定设备指定服务的特征值: - 根据 设备ID 和 服务ID。
   const getCharacteristicsByDeviceIdAndServiceId = () => {
     return new Promise((resolve, reject) => {
+      console.log({
+        method: 'getCharacteristicsByDeviceIdAndServiceId',
+        deviceId: deviceId.value,
+        serviceId: serviceId.value
+      })
       uni.getBLEDeviceCharacteristics({
         deviceId: deviceId.value,
         serviceId: serviceId.value, // todo: 和硬件佬对接 指定是哪条服务: '0000FFE0-0000-1000-8000-00805F9B34FB'
         success: (res) => {
           console.log(res)
           characteristics.value = res.characteristics
+          const characteristic = characteristics.value.find((item) => item.uuid === CHARACTERISTIC_ID)
+          if (characteristic) {
+            characteristicId.value = characteristic.uuid
+          }
           resolve(res.characteristics)
         },
         fail(err) {
@@ -211,7 +240,13 @@ const useBlueTooth = () => {
   }
 
   // 4-3 订阅消息并开启消息监听 - 根据设备 id,服务 id,特征值 去订阅消息
-  const notify = () => {
+  const notify = (): Promise<RES> => {
+    console.log({
+      method: 'notify',
+      deviceId: deviceId.value, // 蓝牙设备 id
+      serviceId: serviceId.value, // 服务UUID
+      characteristicId: characteristicId.value
+    })
     return new Promise((resolve, reject) => {
       uni.notifyBLECharacteristicValueChange({
         deviceId: deviceId.value, // 蓝牙设备 id
@@ -220,8 +255,8 @@ const useBlueTooth = () => {
         state: true, // true: 启用 notify; false: 停用 notify
         success(res) {
           console.log({ 订阅消息成功: res }) // 接受消息的方法
-          resolve(res)
-          listenValueChange()
+          resolve({ ...res, message: '订阅消息成功', status: 200 })
+          // listenValueChange()
         },
         fail(err) {
           reject(err)
@@ -276,9 +311,13 @@ const useBlueTooth = () => {
     getCharacteristicsByDeviceIdAndServiceId,
 
     notify,
+    listenValueChange,
     sendMessageHandler,
     /* ----------------------------------- 变量 ----------------------------------- */
-    blueDeviceList
+    blueDeviceList,
+    deviceId,
+    serviceId,
+    characteristicId
   }
 }
 

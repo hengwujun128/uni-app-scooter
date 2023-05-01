@@ -30,9 +30,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref, Ref, computed, onMounted } from 'vue'
-import useBlueTooth from '../..//hooks/useBlueTooth.ts'
+import { ref, Ref, computed, onMounted, onBeforeUnmount } from 'vue'
+import { useBlueToothStore } from '@/store'
+
+import useBlueTooth from '../../hooks/useBlueTooth.ts'
 const { initAdapter, startDiscoveryAndFound, startCollect, blueDeviceList } = useBlueTooth()
+
+// 获取自定义的store
+const store = useBlueToothStore()
 
 const popupRef: Ref<any | Ref> = ref(null)
 
@@ -54,12 +59,36 @@ const close = () => {
 
 // 蓝牙连接成功之后要跳转到首页
 const confirm = () => {
-  startCollect(blueDeviceList.value[0]).then((res) => {
+  const device = blueDeviceList.value[0]
+  startCollect(device).then((res) => {
     if (res.status === 200) {
-      uni.showToast({
-        title: '连接设备成功',
-        icon: 'success'
+      // uni.showToast({
+      //   title: '连接设备成功',
+      //   icon: 'success',
+      //   duration: 1000 * 10
+      // })
+
+      store.setDevice({ ...device, id: Math.floor(Math.random() * 1000) + 1 })
+
+      uni.showModal({
+        title: '提示',
+        content: '连接设备成功',
+        success: function (res) {
+          if (res.confirm) {
+            uni.navigateBack({ delta: 1 })
+          } else if (res.cancel) {
+            console.log('用户点击取消')
+          }
+        }
       })
+
+      // 保留当前页面 error
+      // uni.navigateTo({
+      //   url: `pages/main/main?id=${device.deviceId}`
+      // })
+      // uni.switchTab({
+      //   url: 'pages/main/main'
+      // })
     }
   })
   popupRef.value.close()
@@ -94,6 +123,9 @@ const init = async () => {
 
 onMounted(() => {
   init()
+})
+onBeforeUnmount(() => {
+  blueDeviceList.value = []
 })
 </script>
 

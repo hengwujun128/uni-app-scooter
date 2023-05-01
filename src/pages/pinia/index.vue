@@ -17,7 +17,7 @@ import { useCountStore } from '@/store'
 // 获取自定义的store
 const store = useCountStore()
 
-// 取需要的 state
+// 取需要的 state~
 const { count } = storeToRefs(store)
 
 // isEven

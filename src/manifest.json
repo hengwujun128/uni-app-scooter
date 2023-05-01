@@ -59,9 +59,20 @@
     "appid": "wxa437c6cbf81cb490",
     "setting": {
       "urlCheck": false,
+      "es6": true,
+      "minified": true,
       "ignoreDevUnusedFiles" : false
     },
     "usingComponents": true,
+    "permission": {
+      "scope.userLocation": {
+          "desc": "更加精准的推荐检测站位置"
+      }
+    },
+    "requiredPrivateInfos": [
+        "getLocation"
+    ]
+  
   },
   "mp-alipay": {
     "usingComponents": true

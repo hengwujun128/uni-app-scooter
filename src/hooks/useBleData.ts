@@ -1,4 +1,4 @@
-import { ref, reactive } from 'vue'
+import { ref, shallowReactive } from 'vue'
 
 //ADD8求和校验
 function Add8(buffer: number[], cnt: number) {
@@ -20,7 +20,7 @@ function ab2hex(buffer: ArrayBuffer) {
 // 解析和发送蓝牙数据
 export const useBleData = (deviceId: string, serviceId: string, characteristicId: string) => {
   //数据存储
-  const pageState = reactive({
+  const pageState = shallowReactive({
     speed: null,
     maxspeed: null,
     busv: null, // 电压
@@ -263,7 +263,7 @@ export const useBleData = (deviceId: string, serviceId: string, characteristicId
   }
 
   return {
-    pageState,
+    blueBoothData: pageState,
     getBleData,
     setLED,
     offLED
