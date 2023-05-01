@@ -21,7 +21,9 @@ function ab2hex(buffer: ArrayBuffer) {
 export const useBleData = (deviceId: string, serviceId: string, characteristicId: string) => {
   //数据存储
   const pageState = shallowReactive({
-    speed: null,
+    weather: 0, // 天气
+    altitude: 0, // 海拔
+    speed: 0, // 速度
     maxspeed: null,
     busv: null, // 电压
     busi: null,
@@ -29,7 +31,7 @@ export const useBleData = (deviceId: string, serviceId: string, characteristicId
     sysodo: null,
     sysdis: null,
     sysmode: null,
-    speedmode: null,
+    speedmode: 0,
     syserr: null,
     turn: null,
     angle: null,
@@ -65,7 +67,10 @@ export const useBleData = (deviceId: string, serviceId: string, characteristicId
     ibuslit: null,
     iphalit: null,
     runangle: null,
-    tuoxinangle: null
+    tuoxinangle: null,
+
+    // light
+    light: null
   })
 
   //   //发送蓝牙数据
@@ -96,36 +101,35 @@ export const useBleData = (deviceId: string, serviceId: string, characteristicId
   }
 
   // 发送指令
-  const sendCmd = (cmd: number, data: any[], len: number) => {
+  const getBufferData = (cmd: number, data: any[], len: number) => {
     const buffer = new Uint8Array(requestParamsHandler(cmd, data, len)).buffer
-
-    uni.writeBLECharacteristicValue({
-      deviceId: deviceId,
-      serviceId: serviceId,
-      characteristicId: characteristicId,
-      //@ts-ignore
-      value: buffer
+    console.log({
+      deviceId,
+      serviceId,
+      characteristicId
     })
-
-    console.log('发送', ab2hex(buffer))
+    return buffer
   }
 
-  const setLED = () => {
-    console.log('开灯')
-
+  const bufferDataHandler = (state = 0) => {
     const buf = []
     let cnt = 0
-    buf[cnt++] = 2
-    sendCmd(21, buf, cnt)
-  }
+    // buf[cnt++] = 2
+    if (state === 1) {
+      console.log('开灯')
+      buf[cnt++] = 2
+    }
 
-  const offLED = () => {
-    console.log('关灯')
+    if (state === 2) {
+      console.log('关灯')
+      buf[cnt++] = 1
+    }
 
-    const buf = []
-    let cnt = 0
-    buf[cnt++] = 1
-    sendCmd(21, buf, cnt)
+    if (state === 0) {
+      buf[cnt++] = 0
+    }
+
+    return getBufferData(21, buf, cnt)
   }
 
   //解析 提取数据
@@ -178,7 +182,7 @@ export const useBleData = (deviceId: string, serviceId: string, characteristicId
     const dataArr = Array.prototype.slice.call(new Uint8Array(arrayBuffer))
     if (IotUartReceive(dataArr)) {
       //@ts-ignore
-      console.log('提取数据包', ab2hex(databuf))
+      //console.log('提取数据包', ab2hex(databuf))
       //提取心跳包
       if (databuf[1] == 10) {
         let cnt = 3
@@ -255,6 +259,29 @@ export const useBleData = (deviceId: string, serviceId: string, characteristicId
           tuoxinangle: databuf[cnt++] - 128
         })
       }
+      //灯光
+      else if (databuf[1] == 21) {
+        // @ts-ignore
+        console.log('提取数据包', ab2hex(databuf))
+        const cnt = 3
+        let buf = 0
+        console.log('灯光', databuf[cnt])
+        if (databuf[cnt] == 1) {
+          buf = 1
+        } else if (databuf[cnt] == 2) {
+          buf = 2
+        }
+        Object.assign(pageState, {
+          light: buf
+        })
+      } else if (databuf[1] == 20) {
+        const cnt = 3
+        console.log('speed', databuf[cnt])
+        Object.assign(pageState, {
+          speedmode: databuf[cnt]
+        })
+      }
+
       //处理完之后重置
       databuf.length = 0
       step.value = 0
@@ -263,9 +290,9 @@ export const useBleData = (deviceId: string, serviceId: string, characteristicId
   }
 
   return {
-    blueBoothData: pageState,
+    pageState,
     getBleData,
-    setLED,
-    offLED
+    bufferDataHandler,
+    requestParamsHandler
   }
 }

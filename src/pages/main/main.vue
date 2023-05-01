@@ -107,7 +107,7 @@
             ></u-icon>
             <view class="label voltage">
               <text>电压</text>
-              <text class="value">124°</text>
+              <text class="value">{{ pageState.busv }}</text>
             </view>
           </view>
         </view>
@@ -152,7 +152,7 @@
                 width="50"
                 height="50"
                 space="10"
-                label="灯光"
+                :label="pageState.light"
                 label-size="36"
                 label-color="#fff"
                 margin-left="12rpx"
@@ -161,13 +161,13 @@
               ></u-icon>
             </view>
           </view>
-          <view class="col col-action" hover-class="background-hover-class" @click="speedHandler">
+          <view class="col col-action" hover-class="background-hover-class" @click="lockCar">
             <view class="col-action__inner">
               <u-icon
                 width="50"
                 height="50"
                 space="10"
-                label="低速"
+                :label="pageState.speedMode"
                 label-size="36"
                 label-color="#fff"
                 margin-left="12rpx"
@@ -188,7 +188,7 @@ import { onLoad } from '@dcloudio/uni-app'
 import { ref, reactive, Ref, onMounted, computed, watch } from 'vue'
 import { useBlueToothStore } from '@/store'
 
-import useDashBoard, { option } from './useDashBoard.ts'
+// import useDashBoard, { option } from './useDashBoard.ts'
 
 import status0 from '../../static/images/scooter/power/0.png'
 import status1 from '../../static/images/scooter/power/10.png'
@@ -216,22 +216,21 @@ const {
 
   deviceId,
   serviceId,
-  characteristicId
+  characteristicId,
+
+  ab2hex
 } = useBlueTooth()
 
-const { blueBoothData, getBleData } = useBleData(deviceId.value, serviceId.value, characteristicId.value)
+const { pageState, getBleData, requestParamsHandler } = useBleData(
+  deviceId.value,
+  serviceId.value,
+  characteristicId.value
+)
 
 const { getLocation } = useSystemInfo()
 
 // 获取自定义的store
 const store = useBlueToothStore()
-// const chartRef: Ref | null = ref(null)
-
-// const { inited } = useDashBoard(chartRef)
-// const pointStyle = ref({
-//   transition: 'all linear 1s',
-//   transform: `translate(-50%, -50%) rotate(${-70}deg)`
-// })
 
 const batteryStatus = ref(0)
 const device = computed(() => store.device)
@@ -241,10 +240,7 @@ const degree = computed(() => {
   const maxSpeed = 200
   const maxDegree = 250
   const percentage = pageState.speed / maxSpeed
-  console.log({
-    speed: pageState.speed,
-    percentage: percentage
-  })
+
   // const rotateRange = [-70, 180] //
   let res = 0
   if (percentage === 0) {
@@ -296,7 +292,7 @@ const icon = (type: string) => {
   }
 
   if (type === 'light') {
-    return `/static/images/scooter/actions/${pageState.light ? 'icon-light__high' : 'icon-light__low'}.png`
+    return `/static/images/scooter/actions/${pageState.light === 2 ? 'icon-light__high' : 'icon-light__low'}.png`
   }
 
   if (type === 'speed') {
@@ -311,16 +307,46 @@ const icon = (type: string) => {
   }
 }
 
-const pageState = reactive({
-  lock: false,
-  assistance: false,
-  light: false,
-  speed: 0, //
-  temp: 0,
-  altitude: 0,
-  weather: 0
-})
+// const pageState = reactive({
+//   lock: false,
+//   assistance: false,
+//   light: 0,
 
+//   speed: 0, //
+//   temp: 0,
+//   busv: 0, // 电压
+//   altitude: 0, //
+//   weather: 0,
+//   speedMode: 0
+// })
+
+// 发送消息指令
+
+const sendCmd = (buffer: any) => {
+  console.log(ab2hex(buffer))
+  // console.log({
+  //   deviceId: device.value.deviceId,
+  //   serviceId: serviceId.value,
+  //   characteristicId: characteristicId.value,
+  //   buffer
+  // })
+  return new Promise((resolve, reject) => {
+    uni.writeBLECharacteristicValue({
+      deviceId: device.value.deviceId,
+      serviceId: serviceId.value || '0000FFE0-0000-1000-8000-00805F9B34FB',
+      characteristicId: characteristicId.value || '0000FFE1-0000-1000-8000-00805F9B34FB',
+      //@ts-ignore
+      value: buffer,
+      success: (res) => {
+        console.log('res', res)
+        resolve(res)
+      },
+      fail: (error) => {
+        reject(error)
+      }
+    })
+  })
+}
 const setDegree = () => {
   // const deg = Math.floor(Math.random() * 100) + 1
   batteryStatus.value = Math.floor(Math.random() * 10) + 1
@@ -332,35 +358,67 @@ const setDegree = () => {
 // 锁定
 const lockHandler = () => {
   // setCmd
-  pageState.lock = !pageState.lock
+  //pageState.lock = !pageState.lock
 }
 // 助力
 const assistanceHandler = () => {
   // setCmd
-  pageState.assistance = !pageState.assistance
+  //pageState.assistance = !pageState.assistance
 }
 // 灯光
 const lightHandler = () => {
-  // setCmd
-  pageState.light = !pageState.light
-}
-// 低速
-const speedHandler = () => {
-  // setCmd 根据接口返回 确定是 speed
-  if (pageState.speed === 2) {
-    pageState.speed = 0
+  // eslint-disable-next-line no-debugger
+  const buf = []
+  let cnt = 0
+
+  if (pageState.light === 1) {
+    console.log('开灯')
+    buf[cnt++] = 2
+  } else if (pageState.light === 2) {
+    console.log('关灯')
+    buf[cnt++] = 1
+  } else {
+    console.log('0')
+    buf[cnt++] = 0
   }
-  pageState.speed = pageState.speed + 1
+
+  const buffer = new Uint8Array(requestParamsHandler(21, buf, cnt)).buffer
+  sendCmd(buffer)
+}
+const lockCar = () => {
+  // eslint-disable-next-line no-debugger
+  const buf = []
+  let cnt = 0
+
+  if (pageState.speedmode == 0) {
+    buf[cnt++] = 0
+  } else if (pageState.speedmode == 1) {
+    buf[cnt++] = 2
+  } else if (pageState.speedmode == 2) {
+    buf[cnt++] = 3
+  } else if (pageState.speedmode == 3) {
+    buf[cnt++] = 1
+  }
+
+  const buffer = new Uint8Array(requestParamsHandler(20, buf, cnt)).buffer
+  sendCmd(buffer)
+}
+const setSpeedMode = () => {
+  // eslint-disable-next-line no-debugger
+  const buf = []
+  let cnt = 0
+
+  buf[cnt++] = 1
+  const buffer = new Uint8Array(requestParamsHandler(20, buf, cnt)).buffer
+  sendCmd(buffer)
 }
 
 // 监听消息变化
 const listenValueChange = () => {
   uni.onBLECharacteristicValueChange((res) => {
     getBleData(res.value)
-    console.log('----pageState---', blueBoothData)
-    // @ts-ignore
-    pageState.speed = blueBoothData.speed
-    pageState.temp = blueBoothData.temp || 0
+    // console.log('----pageState---', blueBoothData)
+    // @ts-ignor
   })
 }
 
