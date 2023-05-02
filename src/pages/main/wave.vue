@@ -22,7 +22,7 @@
         <view class="action">
           <button type="default" class="mini-btn" size="mini" @click="close">取消</button>
           <view class="divide"></view>
-          <button type="default" class="mini-btn" size="mini" @click="confirm">连接</button>
+          <button type="default" class="mini-btn" size="mini" @click="confirmHandler">连接</button>
         </view>
       </view>
     </uni-popup>
@@ -108,20 +108,20 @@ const getDataFromBlueTooth = async (id: string) => {
 }
 
 // 蓝牙连接成功之后要跳转到首页
-const confirm = () => {
+const confirmHandler = () => {
   const device = blueDeviceList.value[0]
-  startCollect(device).then((res) => {
+  startCollect(device).then((res: any) => {
     if (res.status === 200) {
       //
       store.setDevice({ ...device, id: Math.floor(Math.random() * 1000) + 1 })
-      // 监听蓝牙数据
-      getDataFromBlueTooth(device.deviceId)
-      //
+
       uni.showModal({
         title: '提示',
         content: '连接设备成功',
         success: function (res) {
           if (res.confirm) {
+            // 监听蓝牙数据
+            getDataFromBlueTooth(device.deviceId)
             uni.navigateBack({ delta: 1 })
           } else if (res.cancel) {
             console.log('用户点击取消')
