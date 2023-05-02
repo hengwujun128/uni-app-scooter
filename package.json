@@ -81,6 +81,7 @@
     "@vitest/ui": "^0.10.5",
     "c8": "^7.11.3",
     "czg": "^1.4.1",
+    "esbuild-darwin-64": "^0.15.18",
     "eslint": "^8.19.0",
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-config-prettier": "^8.5.0",
