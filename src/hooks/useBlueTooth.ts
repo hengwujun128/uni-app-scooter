@@ -2,13 +2,11 @@ import { ref, Ref } from 'vue'
 
 const useBlueTooth = () => {
   interface DEVICE {
-    deviceId: string
-    name: string
+    deviceId: string; name: string
   }
 
   interface SERVICE {
-    uuid: string
-    isPrimary: boolean
+    uuid: string; isPrimary: boolean
   }
 
   interface CHARACTERISTIC {
@@ -46,8 +44,14 @@ const useBlueTooth = () => {
     deviceId.value = id
   }
 
+  const bleDeviceId = "";
+  const bleServiceId = '0000FFE0-0000-1000-8000-00805F9B34FB';
+  const bleUUID = '0000FFE1-0000-1000-8000-00805F9B34FB';
+
+  const list: any = ref([]);
+
   // ArrayBuffer转16进度字符串示例
-  const ab2hex = (buffer: ArrayBuffer) => {
+  const ab2hex = (buffer: any) => {
     const hexArr = Array.prototype.map.call(new Uint8Array(buffer), function (bit) {
       return ('00' + bit.toString(16)).slice(-2)
     })
@@ -72,200 +76,273 @@ const useBlueTooth = () => {
     return resultStr.join('')
   }
 
-  // 停止蓝牙搜索
-  const stopDiscovery = () => {
-    uni.stopBluetoothDevicesDiscovery({
-      success: (res) => {
-        console.log('停止蓝牙搜索成功')
-        console.log({ stopBluetoothDevicesDiscovery: res })
-      },
-      fail: (err) => {
-        console.log('停止蓝牙搜索失败')
-        console.log({ err: err })
-      }
-    })
-  }
-  // 监听消息变化
-  const listenValueChange = () => {
-    return new Promise((resolve) => {
-      uni.onBLECharacteristicValueChange((res) => {
-        // 结果
-        // console.log({ 有消息进入: res }) // 结果里有个value值，该值为 ArrayBuffer 类型，所以在控制台无法用肉眼观察到，必须将该值转换为16进制
-        // resolve(res)
-        // 每隔 5 秒接受一次数据
-        setInterval(() => {
-          resolve(res)
-        }, 1000 * 5)
-      })
-    })
+
+  const bleInit = () => {
+    openBluetoothAdapter(); //初始化蓝牙设备
   }
 
-  // 1. 初始化蓝牙适配器
-  const initAdapter = () => {
-    uni.closeBluetoothAdapter({})
 
-    return new Promise((resolve, reject) => {
-      uni.openBluetoothAdapter({
-        success(res) {
-          console.log('初始化蓝牙适配器成功')
-          console.log({ openBluetoothAdapter: res })
-          resolve({ ...res, status: 200 })
-        },
-        fail: (err) => {
-          console.log('初始化蓝牙适配器失败')
-          console.log({ err: err })
-          reject({ ...err, status: 0 })
-        }
-      })
-    })
-  }
-
-  // 2 启动蓝牙搜索并监听
-  const startDiscoveryAndFound = () => {
-    return new Promise((resolve, reject) => {
-      console.log('启动蓝牙搜索----')
-      uni.startBluetoothDevicesDiscovery({
-        // 以微信硬件平台的蓝牙智能灯为例，主服务的 UUID 是 FEE7。传入这个参数，只搜索主服务 UUID 为 FEE7 的设备
-        // 建议主要通过该参数过滤掉周边不需要处理的其他蓝牙设备
-        // services: [], //['FEE7'], 要搜索的蓝牙设备主 service 的 uuid 列表,建议主要通过该参数过滤掉周边不需要处理的其他蓝牙设备。
-        // services: filterServiceUUIDs.value,
-        success: (res) => {
-          console.log('启动蓝牙搜索成功')
-          console.log({ startBluetoothDevicesDiscovery: res })
-          // 监听寻找到新设备的事件
-          uni.onBluetoothDeviceFound((data) => {
-            const { devices = [] } = data
-            console.log('deviceId----name---:', devices[0].name)
-            // if (devices[0].name && devices[0].name === DEVICE_NAME)
-            if (devices[0].name) {
-              blueDeviceList.value.push(devices[0])
-              resolve({ message: '启动蓝牙搜索成功', status: 200 })
-            }
-          })
-        },
-        fail: (err) => {
-          console.log({ err: err })
-          reject(err)
-        }
-      })
-    })
-  }
-
-  // 3. 连接目标设备- 同时停止搜索
-  const startCollect = (device: DEVICE): Promise<RES> => {
-    return new Promise((resolve, reject) => {
-      deviceId.value = device.deviceId
-      console.log('----device---', device)
-
-      uni.createBLEConnection({
-        deviceId: device.deviceId,
-        success(res) {
-          console.log('连接目标设备成功')
-          stopDiscovery()
-          resolve({ ...res, status: 200 })
-        },
-        fail(err) {
-          console.log('连接失败: deviceId: deviceId.value', deviceId.value)
-          console.error(err)
-          uni.showToast({
-            title: '连接失败:' + err.errMsg,
-            icon: 'error',
-            duration: 1000 * 10
-          })
-          reject({ ...err, status: 0 })
-        }
-      })
-    })
-  }
-
-  /* -------------- 4. 监听 - 连接设备后就要开启监听功能(才能收到发送读写指令后,设备给你的回调信息) -------------- */
+  // 蓝牙操作 
   /**
-   * 4-1 获取设备服务: getServicesByDeviceId
-   * 4-2 获取设备服务特征值:getCharacteristicsByDeviceIdAndServiceId
-   * 4-3 开启订阅
-   * 4-4 监听消息
+   * 初始化蓝牙设备
    */
-
-  // 4-1 获取指定设备的服务列表 - 根据 deviceId
-  const getServicesByDeviceId = (id: string): Promise<any> => {
-    if (!deviceId.value) {
-      deviceId.value = id
-    }
-    return new Promise((resolve, reject) => {
-      uni.getBLEDeviceServices({
-        deviceId: deviceId.value,
-        success(res) {
-          if (res.services) {
-            // todo: 和硬件佬对接 指定服务还有特征值
-            serviceList.value = res.services
-            const service = serviceList.value.find((item) => item.uuid === SERVICE_ID)
-            console.log('-----查找service---', service)
-            if (service) {
-              serviceId.value = service.uuid
-            }
-            resolve(res.services)
-          }
-        },
-        fail(err) {
-          reject(err)
-        }
-      })
-    })
+  const openBluetoothAdapter = () => {
+    uni.openBluetoothAdapter({
+      success: e => {
+        console.log('初始化蓝牙成功:' + e.errMsg);
+        console.log(JSON.stringify(e));
+        // 搜索蓝牙设备
+        startBluetoothDevicesDiscovery();
+      },
+      fail: e => {
+        console.log(e)
+        console.log('初始化蓝牙失败，错误码：' + (e.errCode || e.errMsg));
+      }
+    });
   }
-
-  // 4-2 获取指定设备指定服务的特征值: - 根据 设备ID 和 服务ID。
-  const getCharacteristicsByDeviceIdAndServiceId = () => {
-    return new Promise((resolve, reject) => {
-      console.log({
-        method: 'getCharacteristicsByDeviceIdAndServiceId',
-        deviceId: deviceId.value,
-        serviceId: serviceId.value
-      })
-      uni.getBLEDeviceCharacteristics({
-        deviceId: deviceId.value,
-        serviceId: serviceId.value, // todo: 和硬件佬对接 指定是哪条服务: '0000FFE0-0000-1000-8000-00805F9B34FB'
-        success: (res) => {
-          console.log(res)
-          characteristics.value = res.characteristics
-          const characteristic = characteristics.value.find((item) => item.uuid === CHARACTERISTIC_ID)
-          if (characteristic) {
-            characteristicId.value = characteristic.uuid
-          }
-          resolve(res.characteristics)
-        },
-        fail(err) {
-          reject(err)
-        }
-      })
-    })
+  /**
+   * 开始搜索蓝牙设备
+   */
+  const startBluetoothDevicesDiscovery = () => {
+    uni.startBluetoothDevicesDiscovery({
+      success: e => {
+        console.log('开始搜索蓝牙设备:' + e.errMsg);
+        onBluetoothDeviceFound();
+      },
+      fail: e => {
+        console.log('搜索蓝牙设备失败，错误码：' + e.errCode);
+      }
+    });
   }
-
-  // 4-3 订阅消息并开启消息监听 - 根据设备 id,服务 id,特征值 去订阅消息
-  const notify = (): Promise<RES> => {
-    console.log({
-      method: 'notify',
-      deviceId: deviceId.value, // 蓝牙设备 id
-      serviceId: serviceId.value, // 服务UUID
-      characteristicId: characteristicId.value
-    })
-    return new Promise((resolve, reject) => {
-      uni.notifyBLECharacteristicValueChange({
-        deviceId: deviceId.value, // 蓝牙设备 id
-        serviceId: serviceId.value, // 服务UUID
-        characteristicId: characteristicId.value, // todo: 和硬件佬对接 指定是哪条特征值需要被监听
-        state: true, // true: 启用 notify; false: 停用 notify
-        success(res) {
-          console.log({ 订阅消息成功: res }) // 接受消息的方法
-          resolve({ ...res, message: '订阅消息成功', status: 200 })
-          // listenValueChange()
-        },
-        fail(err) {
-          reject(err)
-        }
-      })
-    })
+  /**
+   * 停止搜索蓝牙设备
+   */
+  const stopBluetoothDevicesDiscovery = () => {
+    uni.stopBluetoothDevicesDiscovery({
+      success: e => {
+        console.log('停止搜索蓝牙设备:' + e.errMsg);
+      },
+      fail: e => {
+        console.log('停止搜索蓝牙设备失败，错误码：' + e.errCode);
+      }
+    });
   }
+  /**
+   * 发现外围设备
+   */
+  const onBluetoothDeviceFound = () => {
+    uni.onBluetoothDeviceFound(devices => {
+      console.log('开始监听寻找到新设备的事件');
+      getBluetoothDevices();
+    });
+  }
+  /*
+   * 获取在蓝牙模块生效期间所有已发现的蓝牙设备。包括已经和本机处于连接状态的设备。
+   */
+  const getBluetoothDevices = () => {
+    uni.getBluetoothDevices({
+      success: res => {
+        console.log('获取蓝牙设备成功:' + res.devices);
+        // bleDeviceId  找到ID 
+        // this.list = res.devices;
+        list.value = res.devices;
+        console.log('list:' + list.value);
+        console.log('数量:' + list.value.length);
 
+      },
+      fail: e => {
+        console.log('获取蓝牙设备错误，错误码：' + e.errCode);
+      }
+    });
+  }
+  /**
+   * 获取本机蓝牙适配器状态
+   */
+  const getBluetoothAdapterState = () => {
+    console.log('--->');
+    uni.getBluetoothAdapterState({
+      success: res => {
+        console.log(JSON.stringify(res));
+      },
+      fail: e => {
+        console.log('获取本机蓝牙适配器状态失败，错误码：' + e.errCode);
+      }
+    });
+  }
+  /**
+   * 连接低功耗蓝牙
+   */
+  const createBLEConnection = () => {
+    let deviceId = bleDeviceId;
+    uni.showToast({
+      title: '连接蓝牙...',
+      icon: 'loading',
+      duration: 99999
+    });
+    uni.createBLEConnection({
+      // 这里的 deviceId 需要已经通过 createBLEConnection 与对应设备建立链接
+      deviceId,
+      success: res => {
+        console.log(res);
+        console.log('连接蓝牙成功:' + res.errMsg);
+        // 连接设备后断开搜索 并且不能搜索设备
+        stopBluetoothDevicesDiscovery();
+        uni.hideToast();
+        uni.showToast({
+          title: '连接成功',
+          icon: 'success',
+          duration: 2000
+        });
+
+        // 选择服务
+        getBLEDeviceServices();
+
+      },
+      fail: e => {
+        console.log('连接低功耗蓝牙失败，错误码：' + e.errCode);
+      }
+    });
+  }
+  /**
+   * 断开与低功耗蓝牙设备的连接
+   */
+  const closeBLEConnection = () => {
+    let deviceId = bleDeviceId;
+    uni.closeBLEConnection({
+      deviceId,
+      success: res => {
+        console.log(res);
+        console.log('断开低功耗蓝牙成功:' + res.errMsg);
+      },
+      fail: e => {
+        console.log('断开低功耗蓝牙成功，错误码：' + e.errCode);
+
+      }
+    });
+  }
+  /**
+   * 获取所有服务
+   */
+  const getBLEDeviceServices = () => {
+    let deviceId = bleDeviceId;
+    console.log('获取所有服务的 uuid:' + deviceId);
+
+    uni.getBLEDeviceServices({
+      // 这里的 deviceId 需要已经通过 createBLEConnection 与对应设备建立链接
+      deviceId,
+      success: res => {
+        console.log(JSON.stringify(res.services));
+        console.log('获取设备服务成功:' + res.errMsg);
+      },
+      fail: e => {
+        console.log('获取设备服务失败，错误码：' + e.errCode);
+      }
+    });
+  }
+  /**
+   * 获取某个服务下的所有特征值
+   */
+  const getBLEDeviceCharacteristics = () => {
+    let deviceId = bleDeviceId;
+    let serviceId = bleServiceId;
+    console.log(deviceId, serviceId);
+    uni.getBLEDeviceCharacteristics({
+      // 这里的 deviceId 需要已经通过 createBLEConnection 与对应设备建立链接
+      deviceId,
+      // 这里的 serviceId 需要在 getBLEDeviceServices 接口中获取
+      serviceId,
+      success: res => {
+        console.log(JSON.stringify(res));
+        console.log('获取特征值成功:' + res.errMsg);
+      },
+      fail: e => {
+        console.log('获取特征值失败，错误码：' + e.errCode);
+      }
+    });
+  }
+  /**
+   * 监听低功耗蓝牙连接状态的改变事件。包括开发者主动连接或断开连接，设备丢失，连接异常断开等等
+   */
+  const onBLEConnectionStateChange = () => {
+    uni.onBLEConnectionStateChange(res => {
+      // 该方法回调中可以用于处理连接意外断开等异常情况
+      console.log(`蓝牙连接状态 -------------------------->`);
+      console.log(JSON.stringify(res));
+      if (!res.connected) {
+        console.log('断开低功耗蓝牙成功:');
+      }
+    });
+  }
+  /**
+   * 读取低功耗蓝牙设备的特征值的二进制数据值。注意：必须设备的特征值支持 read 才可以成功调用
+   */
+  const readBLECharacteristicValue = () => {
+    let deviceId = bleDeviceId;
+    let serviceId = bleServiceId;
+    let characteristicId = bleUUID;
+
+    console.log(deviceId, serviceId, characteristicId);
+
+    uni.readBLECharacteristicValue({
+      // 这里的 deviceId 需要已经通过 createBLEConnection 与对应设备建立链接
+      deviceId,
+      // 这里的 serviceId 需要在 getBLEDeviceServices 接口中获取
+      serviceId,
+      // 这里的 characteristicId 需要在 getBLEDeviceCharacteristics 接口中获取
+      characteristicId,
+      success: res => {
+        console.log('读取设备数据值成功');
+        console.log(JSON.stringify(res));
+        notifyBLECharacteristicValueChange();
+      },
+      fail(e) {
+        console.log('读取设备数据值失败，错误码：' + e.errCode);
+      }
+    });
+    onBLECharacteristicValueChange();
+  }
+  /**
+   * 监听低功耗蓝牙设备的特征值变化事件。必须先启用 notifyBLECharacteristicValueChange 接口才能接收到设备推送的 notification。
+   */
+  const onBLECharacteristicValueChange = () => {
+    // 必须在这里的回调才能获取
+    uni.onBLECharacteristicValueChange(characteristic => {
+      console.log('通知:' + ab2hex(characteristic.value))
+    });
+  }
+  /**
+   * 订阅操作成功后需要设备主动更新特征值的 value，才会触发 uni.onBLECharacteristicValueChange 回调。
+   */
+  const notifyBLECharacteristicValueChange = () => {
+
+    let deviceId = bleDeviceId;
+    let serviceId = bleServiceId;
+    let characteristicId = bleUUID;
+
+    uni.notifyBLECharacteristicValueChange({
+      state: true, // 启用 notify 功能
+      // 这里的 deviceId 需要已经通过 createBLEConnection 与对应设备建立链接
+      deviceId,
+      // 这里的 serviceId 需要在 getBLEDeviceServices 接口中获取
+      serviceId,
+      // 这里的 characteristicId 需要在 getBLEDeviceCharacteristics 接口中获取
+      characteristicId,
+      success(res) {
+        console.log('notifyBLECharacteristicValueChange success:' + res.errMsg);
+        console.log(JSON.stringify(res));
+      }
+    });
+  }
+  /**
+   * 	断开蓝牙模块
+   */
+  const closeBluetoothAdapter = () => {
+    uni.closeBluetoothAdapter({
+      success: res => {
+        console.log('断开蓝牙模块成功');
+      }
+    });
+  }
   /* -------------------------------------------------------------------------- */
   /*                                    发送指令                                 */
   /* -------------------------------------------------------------------------- */
@@ -305,20 +382,18 @@ const useBlueTooth = () => {
     ab2hex,
     hexCharCodeToStr,
     /* ----------------------------------- 方法 ----------------------------------- */
-    initAdapter,
-    startDiscoveryAndFound,
-    startCollect,
-    getServicesByDeviceId,
-    getCharacteristicsByDeviceIdAndServiceId,
-
-    notify,
-    listenValueChange,
     sendMessageHandler,
+    bleInit,
     /* ----------------------------------- 变量 ----------------------------------- */
     blueDeviceList,
     deviceId,
     serviceId,
-    characteristicId
+    characteristicId,
+
+    bleDeviceId,
+    bleServiceId,
+    bleUUID,
+    list
   }
 }
 

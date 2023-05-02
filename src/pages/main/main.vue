@@ -341,6 +341,7 @@ const setSpMode = () => {
 onLoad((options) => {
   console.log('options', options)
 })
+
 onMounted(() => {
   console.log('device---', device)
   getLocation().then((res: any) => {
