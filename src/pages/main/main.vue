@@ -45,7 +45,7 @@
           name="/static/images/scooter/icon-speedTips.png"
         ></u-icon>
         <view class="speed-data">
-          <text class="speed-value">{{ pageState.speed }}</text>
+          <text class="speed-value">{{ ~~pageState.speed }}</text>
           <text class="speed-unit">km/h</text>
         </view>
         <view class="power">
@@ -63,7 +63,7 @@
             ></u-icon>
             <view class="label weather">
               <text>天气</text>
-              <text class="value">{{ pageState.weather }} °</text>
+              <text class="value">{{ pageState.weather }} ℃</text>
             </view>
           </view>
           <view class="baseInfo-item">
@@ -77,7 +77,7 @@
             ></u-icon>
             <view class="label controller">
               <text>控制器</text>
-              <text class="value">{{ pageState.temp }}°</text>
+              <text class="value">{{ pageState.temp }}℃</text>
             </view>
           </view>
         </view>
@@ -119,7 +119,7 @@
               <u-icon
                 width="45"
                 height="45"
-                label="锁定"
+                :label="text('lock')"
                 label-size="36"
                 label-color="#fff"
                 margin-left="12rpx"
@@ -135,7 +135,7 @@
                 width="42"
                 height="44"
                 space="10"
-                label="助力"
+                :label="text('assistance')"
                 label-size="36"
                 label-color="#fff"
                 margin-left="12rpx"
@@ -145,6 +145,7 @@
             </view>
           </view>
         </view>
+        <!-- 灯光控制 -->
         <view class="row row-action">
           <view class="col col-action" hover-class="background-hover-class" @click="lightHandler">
             <view class="col-action__inner">
@@ -152,7 +153,7 @@
                 width="50"
                 height="50"
                 space="10"
-                :label="pageState.light"
+                :label="text('light')"
                 label-size="36"
                 label-color="#fff"
                 margin-left="12rpx"
@@ -161,13 +162,14 @@
               ></u-icon>
             </view>
           </view>
-          <view class="col col-action" hover-class="background-hover-class" @click="lockCar">
+          <!-- 速度模式切换 -->
+          <view class="col col-action" hover-class="background-hover-class" @click="setSpMode">
             <view class="col-action__inner">
               <u-icon
                 width="50"
                 height="50"
                 space="10"
-                :label="pageState.speedMode"
+                :label="text('speed')"
                 label-size="36"
                 label-color="#fff"
                 margin-left="12rpx"
@@ -274,7 +276,8 @@ const batteryPath = computed(() => {
     [9, status9],
     [10, status10]
   ])
-  return valuePathMap.get(batteryStatus.value)
+  // return valuePathMap.get(batteryStatus.value)
+  return valuePathMap.get(pageState.batSoc)
 })
 
 // 根据 icon
@@ -282,12 +285,12 @@ const icon = (type: string) => {
   let iconPath = ''
 
   if (type === 'lock') {
-    return `/static/images/scooter/actions/${pageState.lock ? 'icon-lock__locked' : 'icon-lock__unlocked'}.png`
+    return `/static/images/scooter/actions/${pageState.lock === 1 ? 'icon-lock__locked' : 'icon-lock__unlocked'}.png`
   }
 
   if (type === 'assistance') {
     return `/static/images/scooter/actions/${
-      pageState.assistance ? 'icon-assistance__high' : 'icon-assistance__low'
+      pageState.assistance === 2 ? 'icon-assistance__high' : 'icon-assistance__low'
     }.png`
   }
 
@@ -296,40 +299,48 @@ const icon = (type: string) => {
   }
 
   if (type === 'speed') {
-    if (pageState.speed === 1) {
-      iconPath = '/static/images/scooter/actions/icon-speed__medium.png'
-    } else if (pageState.speed === 2) {
-      iconPath = '/static/images/scooter/actions/icon-speed__high.png'
-    } else {
+    if (pageState.speedmode === 1) {
       iconPath = '/static/images/scooter/actions/icon-speed__low.png'
+    } else if (pageState.speedmode === 2) {
+      iconPath = '/static/images/scooter/actions/icon-speed__medium.png'
+    } else {
+      iconPath = '/static/images/scooter/actions/icon-speed__high.png'
     }
     return iconPath
   }
 }
 
-// const pageState = reactive({
-//   lock: false,
-//   assistance: false,
-//   light: 0,
+const text = (type: string) => {
+  let iconPath = ''
 
-//   speed: 0, //
-//   temp: 0,
-//   busv: 0, // 电压
-//   altitude: 0, //
-//   weather: 0,
-//   speedMode: 0
-// })
+  if (type === 'lock') {
+    return `${pageState.lock == 2 ? '上锁' : '解锁'}`
+  }
+
+  if (type === 'assistance') {
+    return `${pageState.assistance == 2 ? '助力' : '助力'}`
+  }
+
+  if (type === 'light') {
+    return `${pageState.light === 2 ? '关灯' : '开灯'}`
+  }
+
+  if (type === 'speed') {
+    if (pageState.speedmode === 1) {
+      iconPath = '低速'
+    } else if (pageState.speedmode === 2) {
+      iconPath = '中速'
+    } else {
+      iconPath = '高速'
+    }
+    return iconPath
+  }
+}
 
 // 发送消息指令
 
 const sendCmd = (buffer: any) => {
   console.log(ab2hex(buffer))
-  // console.log({
-  //   deviceId: device.value.deviceId,
-  //   serviceId: serviceId.value,
-  //   characteristicId: characteristicId.value,
-  //   buffer
-  // })
   return new Promise((resolve, reject) => {
     uni.writeBLECharacteristicValue({
       deviceId: device.value.deviceId,
@@ -348,68 +359,70 @@ const sendCmd = (buffer: any) => {
   })
 }
 const setDegree = () => {
-  // const deg = Math.floor(Math.random() * 100) + 1
   batteryStatus.value = Math.floor(Math.random() * 10) + 1
-  // pointStyle.value = {
-  //   transition: 'all linear 1s',
-  //   transform: `translate(-50%, -50%) rotate(${184}deg)`
-  // }
 }
+
 // 锁定
 const lockHandler = () => {
-  // setCmd
-  //pageState.lock = !pageState.lock
-}
-// 助力
-const assistanceHandler = () => {
-  // setCmd
-  //pageState.assistance = !pageState.assistance
-}
-// 灯光
-const lightHandler = () => {
-  // eslint-disable-next-line no-debugger
   const buf = []
   let cnt = 0
 
-  if (pageState.light === 1) {
-    console.log('开灯')
+  if (pageState.lock === 2) {
+    console.log('上锁')
+    buf[cnt++] = 1
+  } else {
+    console.log('解锁')
     buf[cnt++] = 2
-  } else if (pageState.light === 2) {
+  }
+
+  const buffer = new Uint8Array(requestParamsHandler(33, buf, cnt)).buffer
+  sendCmd(buffer)
+}
+
+// 助力
+const assistanceHandler = () => {
+  const buf = []
+  let cnt = 0
+
+  if (pageState.assistance === 2) {
+    console.log('助力关')
+    buf[cnt++] = 1
+  } else {
+    console.log('助力开')
+    buf[cnt++] = 2
+  }
+
+  const buffer = new Uint8Array(requestParamsHandler(34, buf, cnt)).buffer
+  sendCmd(buffer)
+}
+// 灯光
+const lightHandler = () => {
+  const buf = []
+  let cnt = 0
+
+  if (pageState.light === 2) {
     console.log('关灯')
     buf[cnt++] = 1
   } else {
-    console.log('0')
-    buf[cnt++] = 0
+    console.log('开灯')
+    buf[cnt++] = 2
   }
 
   const buffer = new Uint8Array(requestParamsHandler(21, buf, cnt)).buffer
   sendCmd(buffer)
 }
-const lockCar = () => {
-  // eslint-disable-next-line no-debugger
+
+const setSpMode = () => {
   const buf = []
   let cnt = 0
-
-  if (pageState.speedmode == 0) {
-    buf[cnt++] = 0
-  } else if (pageState.speedmode == 1) {
+  if (pageState.speedmode == 1) {
     buf[cnt++] = 2
   } else if (pageState.speedmode == 2) {
     buf[cnt++] = 3
-  } else if (pageState.speedmode == 3) {
+  } else {
     buf[cnt++] = 1
   }
-
-  const buffer = new Uint8Array(requestParamsHandler(20, buf, cnt)).buffer
-  sendCmd(buffer)
-}
-const setSpeedMode = () => {
-  // eslint-disable-next-line no-debugger
-  const buf = []
-  let cnt = 0
-
-  buf[cnt++] = 1
-  const buffer = new Uint8Array(requestParamsHandler(20, buf, cnt)).buffer
+  const buffer = new Uint8Array(requestParamsHandler(22, buf, cnt)).buffer
   sendCmd(buffer)
 }
 
@@ -423,6 +436,7 @@ const listenValueChange = () => {
 }
 
 const getDataFromBlueTooth = async (id: string) => {
+  console.log('DeviceId', id)
   try {
     await getServicesByDeviceId(id)
     await getCharacteristicsByDeviceIdAndServiceId()
@@ -431,6 +445,7 @@ const getDataFromBlueTooth = async (id: string) => {
       listenValueChange()
     }
   } catch (e) {
+    console.log('DeviceId', id)
     console.log('错误提示', e)
     uni.showModal({
       title: '错误提示',
@@ -456,13 +471,14 @@ watch(
     getDataFromBlueTooth(newValue)
   }
 )
+
 onLoad((options) => {
   console.log('options', options)
 })
 onMounted(() => {
   console.log('device---', device)
   getLocation().then((res: any) => {
-    pageState.altitude = res.altitude
+    pageState.altitude = parseInt(res.altitude)
   })
   const instance = getInstance()
   getWeather(instance).then((res: any) => {
@@ -478,39 +494,58 @@ onMounted(() => {
 <style lang="scss" scoped>
 $dashboard-height: 580rpx;
 $dashboard-width: 580rpx;
+
 .main {
   height: 100vh;
   width: 100vw;
   background-color: rgba(58, 62, 86);
   color: #fff;
+
   .header {
     height: 220rpx;
     padding: 84rpx 45rpx;
     padding-bottom: 50rpx;
     background-color: rgba(49, 53, 76);
+    // sbackground: linear-gradient(0deg, rgba(24, 25, 37, 0.4) 0%, rgba(26, 29, 48, 0) 41.97%);
+
+    // transform: rotate(180deg);
+
     border-bottom-left-radius: 80rpx;
     border-bottom-right-radius: 80rpx;
+
+    // box-sizing: border-box;
+    // position: absolute;
+    // width: 850px;
+    // height: 137px;
+    // left: 800px;
+    // top: 221px;
   }
+
   .row {
     display: flex;
     align-items: center;
     justify-content: space-between;
   }
+
   .col {
     text-align: center;
   }
+
   .title-wrapper {
     flex-direction: column;
     flex: 1;
+
     .title {
       font-size: 36rpx;
       margin-bottom: 8rpx;
     }
+
     .title-sub {
       font-size: 24rpx;
       opacity: 0.5;
     }
   }
+
   .body {
     height: calc(100vh - 220rpx);
     // background-color: rgb(47, 50, 73);
@@ -532,6 +567,7 @@ $dashboard-width: 580rpx;
       top: 50%;
       transform: translate(-50%, -50%);
     }
+
     .arc {
       width: 100%;
       position: absolute;
@@ -539,6 +575,7 @@ $dashboard-width: 580rpx;
       top: 50%;
       transform: translate(-50%, -50%);
     }
+
     .point {
       width: 100%;
       position: absolute;
@@ -546,6 +583,7 @@ $dashboard-width: 580rpx;
       top: 50%;
       transform: translate(-50%, -50%);
     }
+
     .speed-tips {
       position: absolute;
       left: 50%;
@@ -553,22 +591,26 @@ $dashboard-width: 580rpx;
       top: 20%;
       transform: translate(-50%, -50%);
     }
+
     .speed-data {
       position: absolute;
       left: 50%;
       top: 240rpx;
       transform: translate(-50%, -50%);
     }
+
     .speed-value {
       display: block;
       font-size: 200rpx;
       line-height: 200rpx;
     }
+
     .speed-unit {
       display: block;
       text-align: center;
       opacity: 0.5;
     }
+
     .power {
       position: absolute;
       left: 50%;
@@ -592,6 +634,7 @@ $dashboard-width: 580rpx;
       padding: 20rpx 0rpx;
       left: -40rpx;
       right: -40rpx;
+
       &-item {
         display: flex;
         align-items: center;
@@ -602,21 +645,26 @@ $dashboard-width: 580rpx;
         border-radius: 50rpx;
         padding: 12rpx 20rpx;
       }
+
       .label {
         flex: 1;
         margin-left: 12rpx;
       }
+
       text {
         display: block;
         font-size: 22rpx;
       }
+
       .value {
         font-size: 28rpx;
       }
     }
+
     .baseInfo__first {
       top: 0px;
     }
+
     .baseInfo__secondary {
       bottom: 0px;
     }
@@ -631,11 +679,13 @@ $dashboard-width: 580rpx;
     border-top-left-radius: 80rpx;
     border-top-right-radius: 80rpx;
   }
+
   .row-action {
     &:nth-last-child(1) {
       margin-top: 74rpx;
     }
   }
+
   .col-action {
     width: 280rpx;
     height: 130rpx;
@@ -649,6 +699,7 @@ $dashboard-width: 580rpx;
     align-items: center;
     justify-content: center;
   }
+
   .col-action__inner {
     width: 250rpx;
     height: 100rpx;
@@ -658,10 +709,12 @@ $dashboard-width: 580rpx;
     align-items: center;
     justify-content: center;
   }
+
   .background-hover-class {
     background: url(/static/images/scooter/actions/btn__default.png) no-repeat;
     background-size: contain;
   }
+
   .btn-hover-class {
   }
 }

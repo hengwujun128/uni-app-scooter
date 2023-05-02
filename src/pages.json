@@ -1,4 +1,3 @@
-
 {
   "pages": [
     {
@@ -27,8 +26,7 @@
     },
     {
       "path": "pages/main/wave",
-      "style":{
-      }
+      "style": {}
     },
     {
       "path": "pages/pinia/index",
@@ -61,18 +59,11 @@
       }
     },
     {
-      "path": "pages/blueToothTest/index",
-      "style": {
-        "navigationBarTitleText": "blueToothTest"
-      }
-    },
-    {
       "path": "pages/home/home",
       "style": {
         "navigationBarTitleText": "首页"
       }
     }
-    
   ],
   "globalStyle": {
     "navigationBarTextStyle": "black",
@@ -82,18 +73,17 @@
   },
   "easycom": {
     "custom": {
-			"^uni-(.*)": "@dcloudio/uni-ui/lib/uni-$1/uni-$1.vue",
+      "^uni-(.*)": "@dcloudio/uni-ui/lib/uni-$1/uni-$1.vue",
       "^u-(.*)": "vk-uview-ui/components/u-$1/u-$1.vue"
     }
   },
-  
   "tabBar": {
     "color": "#7A7E83",
     "selectedColor": "#ffffff",
     "borderStyle": "black",
     "backgroundColor": "#1A1D2F",
-    "fontSize":"32rpx",
-    "position":"bottom",
+    "fontSize": "32rpx",
+    "position": "bottom",
     "list": [
       {
         "pagePath": "pages/main/main",
@@ -106,11 +96,6 @@
       {
         "pagePath": "pages/shop/shop",
         "text": "商城"
-      },
-      {
-        
-        "pagePath":"pages/blueToothTest/index",
-        "text": "视频"
       }
     ]
   }

@@ -62,12 +62,6 @@ const confirm = () => {
   const device = blueDeviceList.value[0]
   startCollect(device).then((res) => {
     if (res.status === 200) {
-      // uni.showToast({
-      //   title: '连接设备成功',
-      //   icon: 'success',
-      //   duration: 1000 * 10
-      // })
-
       store.setDevice({ ...device, id: Math.floor(Math.random() * 1000) + 1 })
 
       uni.showModal({
@@ -81,14 +75,6 @@ const confirm = () => {
           }
         }
       })
-
-      // 保留当前页面 error
-      // uni.navigateTo({
-      //   url: `pages/main/main?id=${device.deviceId}`
-      // })
-      // uni.switchTab({
-      //   url: 'pages/main/main'
-      // })
     }
   })
   popupRef.value.close()

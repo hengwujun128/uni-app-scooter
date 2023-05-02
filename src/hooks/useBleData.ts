@@ -24,65 +24,47 @@ export const useBleData = (deviceId: string, serviceId: string, characteristicId
     weather: 0, // 天气
     altitude: 0, // 海拔
     speed: 0, // 速度
-    maxspeed: null,
-    busv: null, // 电压
-    busi: null,
-    temp: null, // 温度
-    sysodo: null,
-    sysdis: null,
-    sysmode: null,
-    speedmode: 0,
-    syserr: null,
-    turn: null,
-    angle: null,
-    gyro: null,
+    maxspeed: 0,//最大速度
+    busv: 0, // 电压
+    busi: 0,//电流
+    temp: 0, // 温度
+    sysodo: 0,//总里程
+    sysdis: 0,//单次里程
+    sysmode: 0,//系统模式
+    speedmode: 1,//速度模式
+    syserr: 0,  //故障
+    sysCheck: 0, //自检
+    batSoc: 0,
     // 提取11
-    brandName: null,
-    mcuid: null,
-    sysbanben: null,
-    pdy: null,
-    pdm: null,
-    pdd: null,
-    validDate: null,
+    brandName: 0, mcuid: 0, sysbanben: 0,
+    pdy: 0, pdm: 0, pdd: 0,
+    validDate: 0,
     // 灯光数据
-    WSDH: null,
-    WSH: null,
-    WSS: null,
-    WSV: null,
+    WSDH: 0, WSH: 0, WSS: 0, WSV: 0,
     // 配置数据
-    angleKp: null,
-    angleKi: null,
-    gyroKp: null,
-    gyroKi: null,
-    turnMax: null,
-    turnKp: null,
-    turnSpeedKp: null,
-    batErr: null,
-    batWar: null,
+    angleKp: 0,
+    angleKi: 0,
+    gyroKp: 0,
+    gyroKi: 0,
+    turnMax: 0,
+    turnKp: 0,
+    turnSpeedKp: 0,
+    batErr: 0,
+    batWar: 0,
     batV: [],
 
-    split1: null,
-    split2: null,
-    split3: null,
-    ibuslit: null,
-    iphalit: null,
-    runangle: null,
-    tuoxinangle: null,
+    // 数据回复
+    lock: 1, //锁车
+    assistance: 1,//助力
 
-    // light
-    light: null
+    light: 1,//灯光
+
+    split1: 0,
+    split2: 0,
+    split3: 0,
+
+
   })
-
-  //   //发送蓝牙数据
-  // const bleSendData=(buffer:Buffer)=> {
-  //   uni.writeBLECharacteristicValue({
-  //       deviceId: BledeviceId, // 蓝牙设备 id
-  //       serviceId: BleserviceId, // 蓝牙服务的 uuid
-  //       characteristicId: BlecharacteristicId, // 蓝牙特征值的 uuid
-  //       value: buffer, // 蓝牙设备特征值对应的二进制值
-  //       // writeType: '' // 蓝牙特征值的写模式设置，有两种模式，iOS 优先 write，安卓优先 writeNoResponse 。微信小程序支持
-  //   })
-  // }
 
   //构建发送帧
   const requestParamsHandler = (cmd: number, data: any[], cnt: number) => {
@@ -92,50 +74,15 @@ export const useBleData = (deviceId: string, serviceId: string, characteristicId
     databuf[len++] = cmd //功能码
     databuf[len++] = cnt //数据长度
     //填充数据
-    for (let index = 0; index < cnt; index++) {
-      databuf[len++] = data[index]
-    }
+    for (let index = 0; index < cnt; index++) { databuf[len++] = data[index] }
     //计算校验
     databuf[len++] = Add8(databuf, databuf.length)
     return databuf
   }
 
-  // 发送指令
-  const getBufferData = (cmd: number, data: any[], len: number) => {
-    const buffer = new Uint8Array(requestParamsHandler(cmd, data, len)).buffer
-    console.log({
-      deviceId,
-      serviceId,
-      characteristicId
-    })
-    return buffer
-  }
-
-  const bufferDataHandler = (state = 0) => {
-    const buf = []
-    let cnt = 0
-    // buf[cnt++] = 2
-    if (state === 1) {
-      console.log('开灯')
-      buf[cnt++] = 2
-    }
-
-    if (state === 2) {
-      console.log('关灯')
-      buf[cnt++] = 1
-    }
-
-    if (state === 0) {
-      buf[cnt++] = 0
-    }
-
-    return getBufferData(21, buf, cnt)
-  }
-
   //解析 提取数据
   const step = ref(0)
   const databuf: number[] = []
-
   const IotUartReceive = (dataArr: any[]) => {
     for (let i = 0; i < dataArr.length; i++) {
       const data = dataArr[i]
@@ -182,26 +129,31 @@ export const useBleData = (deviceId: string, serviceId: string, characteristicId
     const dataArr = Array.prototype.slice.call(new Uint8Array(arrayBuffer))
     if (IotUartReceive(dataArr)) {
       //@ts-ignore
-      //console.log('提取数据包', ab2hex(databuf))
+      console.log('提取数据包', ab2hex(databuf))
       //提取心跳包
       if (databuf[1] == 10) {
         let cnt = 3
         //填充到页面数据
 
         Object.assign(pageState, {
-          speed: (databuf[cnt++] << 8) | databuf[cnt++],
-          maxspeed: (databuf[cnt++] << 8) | databuf[cnt++],
-          busv: (databuf[cnt++] << 8) | databuf[cnt++],
-          busi: (databuf[cnt++] << 8) | databuf[cnt++],
-          temp: databuf[cnt++],
-          sysodo: (databuf[cnt++] << 8) | databuf[cnt++],
-          sysdis: databuf[cnt++],
-          sysmode: databuf[cnt++],
-          speedmode: databuf[cnt++],
-          syserr: (databuf[cnt++] << 8) | databuf[cnt++],
-          turn: databuf[cnt++],
-          angle: databuf[cnt++] - 128,
-          gyro: databuf[cnt++] - 128
+          speed: ((databuf[cnt++] << 8) | databuf[cnt++]) / 10,//12
+          busv: (databuf[cnt++] << 8) | databuf[cnt++],//56
+          busi: (databuf[cnt++] << 8) | databuf[cnt++],//78
+          temp: databuf[cnt++],//9
+          sysodo: (databuf[cnt++] << 8) | databuf[cnt++],//10 11
+          sysdis: databuf[cnt++], //12
+          sysmode: databuf[cnt++],//13
+          speedmode: databuf[cnt++],//14
+          lock: databuf[cnt++],//14
+          assistance: databuf[cnt++],//14
+          light: databuf[cnt++],//14
+          batSoc: databuf[cnt++],
+
+          syserr: databuf[cnt++],//15
+          // 自检故障 16-17
+          sysCheck: (databuf[cnt++] << 8) | databuf[cnt++],
+
+
         })
       }
       //提取11
@@ -218,68 +170,48 @@ export const useBleData = (deviceId: string, serviceId: string, characteristicId
           validDate: databuf[cnt++]
         })
       }
-      //灯光效果
-      else if (databuf[1] == 28) {
-        let cnt = 3
-        Object.assign(pageState, {
-          WSDH: databuf[cnt++],
-          WSH: (databuf[cnt++] << 8) | databuf[cnt++],
-          WSS: databuf[cnt++],
-          WSV: databuf[cnt++]
-        })
-      }
-      //提取配置包
-      else if (databuf[1] == 0x30) {
-        let cnt = 3
-        Object.assign(pageState, {
-          angleKp: (databuf[cnt++] << 8) | databuf[cnt++],
-          angleKi: (databuf[cnt++] << 8) | databuf[cnt++],
-          gyroKp: (databuf[cnt++] << 8) | databuf[cnt++],
-          gyroKi: (databuf[cnt++] << 8) | databuf[cnt++],
-          turnMax: (databuf[cnt++] << 8) | databuf[cnt++],
-          turnKp: (databuf[cnt++] << 8) | databuf[cnt++],
-          turnSpeedKp: (databuf[cnt++] << 8) | databuf[cnt++],
-          batErr: (databuf[cnt++] << 8) | databuf[cnt++],
-          batWar: (databuf[cnt++] << 8) | databuf[cnt++],
-          batV: [
-            0,
-            (databuf[cnt++] << 8) | databuf[cnt++],
-            (databuf[cnt++] << 8) | databuf[cnt++],
-            (databuf[cnt++] << 8) | databuf[cnt++],
-            (databuf[cnt++] << 8) | databuf[cnt++],
-            (databuf[cnt++] << 8) | databuf[cnt++]
-          ],
-
-          split1: databuf[cnt++],
-          split2: databuf[cnt++],
-          split3: databuf[cnt++],
-          ibuslit: (databuf[cnt++] << 8) | databuf[cnt++],
-          iphalit: (databuf[cnt++] << 8) | databuf[cnt++],
-          runangle: databuf[cnt++] - 128,
-          tuoxinangle: databuf[cnt++] - 128
-        })
+      //上锁 1 解锁2 拖行3 
+      else if (databuf[1] == 20) {
+        const cnt = 3
+        // @ts-ignore
+        console.log('解锁', ab2hex(databuf))
+        pageState.sysmode = databuf[cnt];
       }
       //灯光
       else if (databuf[1] == 21) {
+        const cnt = 3
         // @ts-ignore
-        console.log('提取数据包', ab2hex(databuf))
+        console.log('灯光', ab2hex(databuf))
+        pageState.light = databuf[cnt];
+      }
+      // 速度模式
+      else if (databuf[1] == 22) {
         const cnt = 3
-        let buf = 0
-        console.log('灯光', databuf[cnt])
-        if (databuf[cnt] == 1) {
-          buf = 1
-        } else if (databuf[cnt] == 2) {
-          buf = 2
-        }
-        Object.assign(pageState, {
-          light: buf
-        })
-      } else if (databuf[1] == 20) {
+        console.log('速度', databuf[cnt])
+        pageState.speedmode = databuf[cnt];
+      }
+      // 校准命令
+      else if (databuf[1] == 23) {
         const cnt = 3
-        console.log('speed', databuf[cnt])
-        Object.assign(pageState, {
-          speedmode: databuf[cnt]
-        })
+        console.log('校准', databuf[cnt])
+      }
+      // 限速设置
+      else if (databuf[1] == 24) {
+        const cnt = 3
+        console.log('限速', databuf[cnt])
+      }
+
+      // 解锁1 上锁2 
+      else if (databuf[1] == 33) {
+        const cnt = 3
+        console.log('解锁', databuf[cnt])
+        pageState.lock = databuf[cnt];
+      }
+      // 拖行 
+      else if (databuf[1] == 34) {
+        const cnt = 3
+        console.log('拖行', databuf[cnt])
+        pageState.assistance = databuf[cnt];
       }
 
       //处理完之后重置
@@ -289,10 +221,10 @@ export const useBleData = (deviceId: string, serviceId: string, characteristicId
     return 0
   }
 
+  // 暴露接口
   return {
     pageState,
     getBleData,
-    bufferDataHandler,
     requestParamsHandler
   }
 }

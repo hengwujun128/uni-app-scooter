@@ -30,7 +30,7 @@ const useBlueTooth = () => {
   const SERVICE_ID = '0000FFE0-0000-1000-8000-00805F9B34FB' // 指定设备下的指定服务ID
   const CHARACTERISTIC_ID = '0000FFE1-0000-1000-8000-00805F9B34FB' //  指定设备下的指定服务下的指定特征值ID
 
-  const DEVICE_NAME = 'Scooter_41360'
+  const DEVICE_NAME = 'Scooter-41360'
 
   const filterServiceUUIDs = ref([]) // 用于过滤无关的蓝牙设备,需要参考蓝牙设备厂商提供的蓝牙协议；
 
@@ -136,7 +136,8 @@ const useBlueTooth = () => {
           uni.onBluetoothDeviceFound((data) => {
             const { devices = [] } = data
             console.log('deviceId----name---:', devices[0].name)
-            if (devices[0].name && devices[0].name === DEVICE_NAME) {
+            // if (devices[0].name && devices[0].name === DEVICE_NAME)
+            if (devices[0].name) {
               blueDeviceList.value.push(devices[0])
               resolve({ message: '启动蓝牙搜索成功', status: 200 })
             }
