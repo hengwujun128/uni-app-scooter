@@ -4,13 +4,8 @@
       <!-- 蓝牙状态,如果已经连接成功,就改变Bluetooth 的icon ;-->
       <view class="col">
         <navigator url="/pages/main/wave" hover-class="navigator-hover">
-          <u-icon
-            width="80"
-            height="80"
-            space="10"
-            hover-class="hover-class"
-            name="/static/images/scooter/btn-blueTooth.svg"
-          ></u-icon>
+          <u-icon width="80" height="80" space="10" hover-class="hover-class"
+            name="/static/images/scooter/btn-blueTooth.svg"></u-icon>
         </navigator>
       </view>
       <view class="col title-wrapper">
@@ -19,14 +14,8 @@
       </view>
       <view class="col">
         <navigator url="/pages/settings/index" hover-class="navigator-hover">
-          <u-icon
-            width="80"
-            height="80"
-            size="60"
-            space="10px"
-            hover-class="hover-class"
-            name="/static/images/scooter/btn-setting.svg"
-          ></u-icon>
+          <u-icon width="80" height="80" size="60" space="10px" hover-class="hover-class"
+            name="/static/images/scooter/btn-setting.svg"></u-icon>
         </navigator>
       </view>
     </view>
@@ -37,13 +26,8 @@
         <image class="arc" src="/static/images/scooter/圆弧.png" mode="widthFix"></image>
         <image :style="pointStyle" class="point" src="/static/images/scooter/指针.png" mode="widthFix"></image>
         <!-- tips -->
-        <u-icon
-          width="60rpx"
-          height="28rpx"
-          space="10"
-          class="speed-tips"
-          name="/static/images/scooter/icon-speedTips.png"
-        ></u-icon>
+        <u-icon width="60rpx" height="28rpx" space="10" class="speed-tips"
+          name="/static/images/scooter/icon-speedTips.png"></u-icon>
         <view class="speed-data">
           <text class="speed-value">{{ ~~pageState.speed }}</text>
           <text class="speed-unit">km/h</text>
@@ -53,28 +37,16 @@
         </view>
         <view class="baseInfo baseInfo__first">
           <view class="baseInfo-item">
-            <u-icon
-              width="45"
-              height="45"
-              margin-left="12rpx"
-              margin-top="12rpx"
-              hover-class="btn-hover-class"
-              name="/static/images/scooter/icon-weather.svg"
-            ></u-icon>
+            <u-icon width="45" height="45" margin-left="12rpx" margin-top="12rpx" hover-class="btn-hover-class"
+              name="/static/images/scooter/icon-weather.svg"></u-icon>
             <view class="label weather">
               <text>天气</text>
               <text class="value">{{ pageState.weather }} ℃</text>
             </view>
           </view>
           <view class="baseInfo-item">
-            <u-icon
-              width="45"
-              height="45"
-              margin-left="12rpx"
-              margin-top="12rpx"
-              hover-class="btn-hover-class"
-              name="/static/images/scooter/icon-controller.svg"
-            ></u-icon>
+            <u-icon width="45" height="45" margin-left="12rpx" margin-top="12rpx" hover-class="btn-hover-class"
+              name="/static/images/scooter/icon-controller.svg"></u-icon>
             <view class="label controller">
               <text>控制器</text>
               <text class="value">{{ pageState.temp }}℃</text>
@@ -83,28 +55,16 @@
         </view>
         <view class="baseInfo baseInfo__secondary">
           <view class="baseInfo-item">
-            <u-icon
-              width="45"
-              height="45"
-              margin-left="12rpx"
-              margin-top="12rpx"
-              hover-class="btn-hover-class"
-              name="/static/images/scooter/icon-altitude.svg"
-            ></u-icon>
+            <u-icon width="45" height="45" margin-left="12rpx" margin-top="12rpx" hover-class="btn-hover-class"
+              name="/static/images/scooter/icon-altitude.svg"></u-icon>
             <view class="label altitude">
               <text>海拔</text>
               <text class="value">{{ pageState.altitude }}m</text>
             </view>
           </view>
           <view class="baseInfo-item">
-            <u-icon
-              width="45"
-              height="45"
-              margin-left="12rpx"
-              margin-top="12rpx"
-              hover-class="btn-hover-class"
-              name="/static/images/scooter/icon-voltage.svg"
-            ></u-icon>
+            <u-icon width="45" height="45" margin-left="12rpx" margin-top="12rpx" hover-class="btn-hover-class"
+              name="/static/images/scooter/icon-voltage.svg"></u-icon>
             <view class="label voltage">
               <text>电压</text>
               <text class="value">{{ pageState.busv }}</text>
@@ -116,32 +76,14 @@
         <view class="row row-action">
           <view class="col col-action" hover-class="background-hover-class" @click="lockHandler">
             <view class="col-action__inner">
-              <u-icon
-                width="45"
-                height="45"
-                :label="text('lock')"
-                label-size="36"
-                label-color="#fff"
-                margin-left="12rpx"
-                margin-top="12rpx"
-                hover-class="btn-hover-class"
-                :name="icon('lock')"
-              ></u-icon>
+              <u-icon width="45" height="45" :label="text('lock')" label-size="36" label-color="#fff"
+                margin-left="12rpx" margin-top="12rpx" hover-class="btn-hover-class" :name="icon('lock')"></u-icon>
             </view>
           </view>
           <view class="col col-action" hover-class="background-hover-class" @click="assistanceHandler">
             <view class="col-action__inner">
-              <u-icon
-                width="42"
-                height="44"
-                space="10"
-                :label="text('assistance')"
-                label-size="36"
-                label-color="#fff"
-                margin-left="12rpx"
-                hover-class="btn-hover-class"
-                :name="icon('assistance')"
-              ></u-icon>
+              <u-icon width="42" height="44" space="10" :label="text('assistance')" label-size="36" label-color="#fff"
+                margin-left="12rpx" hover-class="btn-hover-class" :name="icon('assistance')"></u-icon>
             </view>
           </view>
         </view>
@@ -149,33 +91,15 @@
         <view class="row row-action">
           <view class="col col-action" hover-class="background-hover-class" @click="lightHandler">
             <view class="col-action__inner">
-              <u-icon
-                width="50"
-                height="50"
-                space="10"
-                :label="text('light')"
-                label-size="36"
-                label-color="#fff"
-                margin-left="12rpx"
-                hover-class="btn-hover-class"
-                :name="icon('light')"
-              ></u-icon>
+              <u-icon width="50" height="50" space="10" :label="text('light')" label-size="36" label-color="#fff"
+                margin-left="12rpx" hover-class="btn-hover-class" :name="icon('light')"></u-icon>
             </view>
           </view>
           <!-- 速度模式切换 -->
           <view class="col col-action" hover-class="background-hover-class" @click="setSpMode">
             <view class="col-action__inner">
-              <u-icon
-                width="50"
-                height="50"
-                space="10"
-                :label="text('speed')"
-                label-size="36"
-                label-color="#fff"
-                margin-left="12rpx"
-                hover-class="btn-hover-class"
-                :name="icon('speed')"
-              ></u-icon>
+              <u-icon width="50" height="50" space="10" :label="text('speed')" label-size="36" label-color="#fff"
+                margin-left="12rpx" hover-class="btn-hover-class" :name="icon('speed')"></u-icon>
             </view>
           </view>
         </view>
@@ -273,15 +197,13 @@ const icon = (type: string) => {
   let iconPath = ''
 
   if (type === 'lock') {
-    return `/static/images/scooter/actions/${
-      pageState.value.lock === 1 ? 'icon-lock__locked' : 'icon-lock__unlocked'
-    }.png`
+    return `/static/images/scooter/actions/${pageState.value.lock === 1 ? 'icon-lock__locked' : 'icon-lock__unlocked'
+      }.png`
   }
 
   if (type === 'assistance') {
-    return `/static/images/scooter/actions/${
-      pageState.value.assistance === 2 ? 'icon-assistance__high' : 'icon-assistance__low'
-    }.png`
+    return `/static/images/scooter/actions/${pageState.value.assistance === 2 ? 'icon-assistance__high' : 'icon-assistance__low'
+      }.png`
   }
 
   if (type === 'light') {
@@ -659,7 +581,6 @@ $dashboard-width: 580rpx;
     background-size: contain;
   }
 
-  .btn-hover-class {
-  }
+  .btn-hover-class {}
 }
 </style>
