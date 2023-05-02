@@ -34,7 +34,20 @@ import { ref, Ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import { useBlueToothStore } from '@/store'
 
 import useBlueTooth from '../../hooks/useBlueTooth.ts'
-const { initAdapter, startDiscoveryAndFound, startCollect, blueDeviceList } = useBlueTooth()
+import { useBleData } from '../../hooks/useBleData.ts'
+
+const {
+  initAdapter,
+  startDiscoveryAndFound,
+  startCollect,
+  blueDeviceList,
+  // 接收蓝牙
+  getServicesByDeviceId,
+  getCharacteristicsByDeviceIdAndServiceId,
+  notify
+} = useBlueTooth()
+
+const { pageState, getBleData } = useBleData()
 
 // 获取自定义的store
 const store = useBlueToothStore()
@@ -57,13 +70,53 @@ const close = () => {
   popupRef.value.close()
 }
 
+// 监听消息变化
+const listenValueChange = () => {
+  uni.onBLECharacteristicValueChange((res) => {
+    getBleData(res.value)
+    // console.log('----pageState---', pageState)
+    // @ts-ignor
+    store.setBlueToothState({ ...pageState, id: Math.floor(Math.random() * 1000) + 1 })
+  })
+}
+
+// 接收蓝牙数据
+const getDataFromBlueTooth = async (id: string) => {
+  console.log('DeviceId', id)
+  try {
+    await getServicesByDeviceId(id)
+    await getCharacteristicsByDeviceIdAndServiceId()
+    const res = await notify()
+    if (res.status === 200) {
+      listenValueChange()
+    }
+  } catch (e) {
+    console.log('DeviceId', id)
+    console.log('错误提示', e)
+    uni.showModal({
+      title: '错误提示',
+      content: '获取蓝牙数据失败',
+      success: function (res) {
+        if (res.confirm) {
+          console.log('retry')
+        } else if (res.cancel) {
+          console.log('用户点击取消')
+        }
+      }
+    })
+  }
+}
+
 // 蓝牙连接成功之后要跳转到首页
 const confirm = () => {
   const device = blueDeviceList.value[0]
   startCollect(device).then((res) => {
     if (res.status === 200) {
+      //
       store.setDevice({ ...device, id: Math.floor(Math.random() * 1000) + 1 })
-
+      // 监听蓝牙数据
+      getDataFromBlueTooth(device.deviceId)
+      //
       uni.showModal({
         title: '提示',
         content: '连接设备成功',

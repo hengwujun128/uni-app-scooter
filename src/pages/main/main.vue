@@ -211,23 +211,9 @@ import { useSystemInfo } from '../../hooks/useSystemInfo.ts'
 
 const { getInstance, getWeather } = useGaoDe()
 
-const {
-  getServicesByDeviceId,
-  getCharacteristicsByDeviceIdAndServiceId,
-  notify,
+const { serviceId, characteristicId, ab2hex } = useBlueTooth()
 
-  deviceId,
-  serviceId,
-  characteristicId,
-
-  ab2hex
-} = useBlueTooth()
-
-const { pageState, getBleData, requestParamsHandler } = useBleData(
-  deviceId.value,
-  serviceId.value,
-  characteristicId.value
-)
+const { requestParamsHandler } = useBleData()
 
 const { getLocation } = useSystemInfo()
 
@@ -236,12 +222,14 @@ const store = useBlueToothStore()
 
 const batteryStatus = ref(0)
 const device = computed(() => store.device)
+// 获取全局蓝牙状态
+const pageState = computed(() => store.blueToothState)
 
 // 根据速度设置角度
 const degree = computed(() => {
   const maxSpeed = 200
   const maxDegree = 250
-  const percentage = pageState.speed / maxSpeed
+  const percentage = pageState.value.speed / maxSpeed
 
   // const rotateRange = [-70, 180] //
   let res = 0
@@ -277,7 +265,7 @@ const batteryPath = computed(() => {
     [10, status10]
   ])
   // return valuePathMap.get(batteryStatus.value)
-  return valuePathMap.get(pageState.batSoc)
+  return valuePathMap.get(pageState.value.batSoc)
 })
 
 // 根据 icon
@@ -285,23 +273,25 @@ const icon = (type: string) => {
   let iconPath = ''
 
   if (type === 'lock') {
-    return `/static/images/scooter/actions/${pageState.lock === 1 ? 'icon-lock__locked' : 'icon-lock__unlocked'}.png`
+    return `/static/images/scooter/actions/${
+      pageState.value.lock === 1 ? 'icon-lock__locked' : 'icon-lock__unlocked'
+    }.png`
   }
 
   if (type === 'assistance') {
     return `/static/images/scooter/actions/${
-      pageState.assistance === 2 ? 'icon-assistance__high' : 'icon-assistance__low'
+      pageState.value.assistance === 2 ? 'icon-assistance__high' : 'icon-assistance__low'
     }.png`
   }
 
   if (type === 'light') {
-    return `/static/images/scooter/actions/${pageState.light === 2 ? 'icon-light__high' : 'icon-light__low'}.png`
+    return `/static/images/scooter/actions/${pageState.value.light === 2 ? 'icon-light__high' : 'icon-light__low'}.png`
   }
 
   if (type === 'speed') {
-    if (pageState.speedmode === 1) {
+    if (pageState.value.speedmode === 1) {
       iconPath = '/static/images/scooter/actions/icon-speed__low.png'
-    } else if (pageState.speedmode === 2) {
+    } else if (pageState.value.speedmode === 2) {
       iconPath = '/static/images/scooter/actions/icon-speed__medium.png'
     } else {
       iconPath = '/static/images/scooter/actions/icon-speed__high.png'
@@ -314,21 +304,21 @@ const text = (type: string) => {
   let iconPath = ''
 
   if (type === 'lock') {
-    return `${pageState.lock == 2 ? '上锁' : '解锁'}`
+    return `${pageState.value.lock == 2 ? '上锁' : '解锁'}`
   }
 
   if (type === 'assistance') {
-    return `${pageState.assistance == 2 ? '助力' : '助力'}`
+    return `${pageState.value.assistance == 2 ? '助力' : '助力'}`
   }
 
   if (type === 'light') {
-    return `${pageState.light === 2 ? '关灯' : '开灯'}`
+    return `${pageState.value.light === 2 ? '关灯' : '开灯'}`
   }
 
   if (type === 'speed') {
-    if (pageState.speedmode === 1) {
+    if (pageState.value.speedmode === 1) {
       iconPath = '低速'
-    } else if (pageState.speedmode === 2) {
+    } else if (pageState.value.speedmode === 2) {
       iconPath = '中速'
     } else {
       iconPath = '高速'
@@ -367,7 +357,7 @@ const lockHandler = () => {
   const buf = []
   let cnt = 0
 
-  if (pageState.lock === 2) {
+  if (pageState.value.lock === 2) {
     console.log('上锁')
     buf[cnt++] = 1
   } else {
@@ -384,7 +374,7 @@ const assistanceHandler = () => {
   const buf = []
   let cnt = 0
 
-  if (pageState.assistance === 2) {
+  if (pageState.value.assistance === 2) {
     console.log('助力关')
     buf[cnt++] = 1
   } else {
@@ -400,7 +390,7 @@ const lightHandler = () => {
   const buf = []
   let cnt = 0
 
-  if (pageState.light === 2) {
+  if (pageState.value.light === 2) {
     console.log('关灯')
     buf[cnt++] = 1
   } else {
@@ -415,9 +405,9 @@ const lightHandler = () => {
 const setSpMode = () => {
   const buf = []
   let cnt = 0
-  if (pageState.speedmode == 1) {
+  if (pageState.value.speedmode == 1) {
     buf[cnt++] = 2
-  } else if (pageState.speedmode == 2) {
+  } else if (pageState.value.speedmode == 2) {
     buf[cnt++] = 3
   } else {
     buf[cnt++] = 1
@@ -426,63 +416,17 @@ const setSpMode = () => {
   sendCmd(buffer)
 }
 
-// 监听消息变化
-const listenValueChange = () => {
-  uni.onBLECharacteristicValueChange((res) => {
-    getBleData(res.value)
-    // console.log('----pageState---', blueBoothData)
-    // @ts-ignor
-  })
-}
-
-const getDataFromBlueTooth = async (id: string) => {
-  console.log('DeviceId', id)
-  try {
-    await getServicesByDeviceId(id)
-    await getCharacteristicsByDeviceIdAndServiceId()
-    const res = await notify()
-    if (res.status === 200) {
-      listenValueChange()
-    }
-  } catch (e) {
-    console.log('DeviceId', id)
-    console.log('错误提示', e)
-    uni.showModal({
-      title: '错误提示',
-      content: '获取蓝牙数据失败',
-      success: function (res) {
-        if (res.confirm) {
-          console.log('retry')
-        } else if (res.cancel) {
-          console.log('用户点击取消')
-        }
-      }
-    })
-  }
-}
-
-// 连接蓝牙获取数据
-watch(
-  () => {
-    return device.value.deviceId
-  },
-  (newValue) => {
-    console.log('device---newValue', newValue)
-    getDataFromBlueTooth(newValue)
-  }
-)
-
 onLoad((options) => {
   console.log('options', options)
 })
 onMounted(() => {
   console.log('device---', device)
   getLocation().then((res: any) => {
-    pageState.altitude = parseInt(res.altitude)
+    pageState.value.altitude = parseInt(res.altitude)
   })
   const instance = getInstance()
   getWeather(instance).then((res: any) => {
-    pageState.weather = res.temperature.data
+    pageState.value.weather = res.temperature.data
   })
 
   setInterval(() => {
