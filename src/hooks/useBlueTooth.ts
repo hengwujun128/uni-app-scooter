@@ -137,7 +137,8 @@ const useBlueTooth = () => {
             const { devices = [] } = data
             console.log('deviceId----name---:', devices[0].name)
             // if (devices[0].name && devices[0].name === DEVICE_NAME)
-            if (devices[0].name) {
+            // 名称相同只取一条数据
+            if (blueDeviceList.value.length===0&&devices[0].name&& devices[0].name === DEVICE_NAME) {
               blueDeviceList.value.push(devices[0])
               resolve({ message: '启动蓝牙搜索成功', status: 200 })
             }
@@ -159,6 +160,7 @@ const useBlueTooth = () => {
 
       uni.createBLEConnection({
         deviceId: device.deviceId,
+        timeout:2000,
         success(res) {
           console.log('连接目标设备成功')
           stopDiscovery()
@@ -168,7 +170,7 @@ const useBlueTooth = () => {
           console.log('连接失败: deviceId: deviceId.value', deviceId.value)
           console.error(err)
           uni.showToast({
-            title: '连接失败:' + err.errMsg,
+            title: '连接失败',
             icon: 'error',
             duration: 1000 * 10
           })

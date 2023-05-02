@@ -15,9 +15,9 @@
       </view>
     </view>
 
-    <uni-popup ref="popupRef" type="bottom" :mask-click="false" round>
+    <uni-popup ref="popupRef" v-if="deviceName" type="bottom" :mask-click="false" round>
       <view class="wrapper">
-        <view class="title">{{ deviceName || '设备名称' }}</view>
+        <view class="title">{{ deviceName }}</view>
         <view class="desc">是否连接该平衡车？</view>
         <view class="action">
           <button type="default" class="mini-btn" size="mini" @click="close">取消</button>
@@ -109,11 +109,13 @@ const getDataFromBlueTooth = async (id: string) => {
 
 // 蓝牙连接成功之后要跳转到首页
 const confirmHandler = () => {
+  //  deviceId 这里有个问题
   const device = blueDeviceList.value[0]
   startCollect(device).then((res: any) => {
     if (res.status === 200) {
-      //
       store.setDevice({ ...device, id: Math.floor(Math.random() * 1000) + 1 })
+      //id: Math.floor(Math.random() * 1000) + 1
+      store.setDevice({ ...device })
 
       uni.showModal({
         title: '提示',
