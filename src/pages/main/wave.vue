@@ -15,12 +15,25 @@
       </view>
     </view>
 
-    <uni-popup ref="popupRef" v-if="deviceName" type="bottom" :mask-click="false" round>
+    <uni-popup ref="devicesRef" :mask-click="false" round>
+      <uni-list class="device-wrapper">
+        <uni-list-item
+          v-for="item in allDeviceList"
+          :key="item.deviceId"
+          :title="item.deviceId"
+          :note="item.name"
+          clickable
+          @click="selectDevice(item)"
+        ></uni-list-item>
+        <!-- <uni-list-item :disabled="true" title="列表禁用状态"></uni-list-item> -->
+      </uni-list>
+    </uni-popup>
+    <uni-popup ref="popupRef" type="bottom" :mask-click="false" round>
       <view class="wrapper">
         <view class="title">{{ deviceName }}</view>
         <view class="desc">是否连接该平衡车？</view>
         <view class="action">
-          <button type="default" class="mini-btn" size="mini" @click="close">取消</button>
+          <button type="default" class="mini-btn" size="mini" @click="closeHandler">取消</button>
           <view class="divide"></view>
           <button type="default" class="mini-btn" size="mini" @click="confirmHandler">连接</button>
         </view>
@@ -30,7 +43,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, Ref, computed, onMounted, onBeforeUnmount } from 'vue'
+import { ref, Ref, computed, watch, onMounted, onBeforeUnmount } from 'vue'
 import { useBlueToothStore } from '@/store'
 
 import useBlueTooth from '../../hooks/useBlueTooth.ts'
@@ -40,7 +53,8 @@ const {
   initAdapter,
   startDiscoveryAndFound,
   startCollect,
-  blueDeviceList,
+  allDeviceList,
+  targetDeviceList,
   // 接收蓝牙
   getServicesByDeviceId,
   getCharacteristicsByDeviceIdAndServiceId,
@@ -52,21 +66,22 @@ const { pageState, getBleData } = useBleData()
 // 获取自定义的store
 const store = useBlueToothStore()
 
+const devicesRef: Ref<any> = ref(null)
 const popupRef: Ref<any | Ref> = ref(null)
 
 const searchStatus = ref(0) // 0 |1 start | 2 end
 
 const animationName = computed(() => {
-  return blueDeviceList.value.length <= 0 ? 'wave' : ''
+  return targetDeviceList.value.length <= 0 ? 'wave' : ''
 })
 
 const deviceName = computed(() => {
-  return blueDeviceList.value[0]?.name
+  return targetDeviceList.value[0]?.name
 })
 
 // 取消,则继续搜索
-const close = () => {
-  blueDeviceList.value = []
+const closeHandler = () => {
+  targetDeviceList.value = []
   popupRef.value.close()
 }
 
@@ -110,15 +125,14 @@ const getDataFromBlueTooth = async (id: string) => {
 // 蓝牙连接成功之后要跳转到首页
 const confirmHandler = () => {
   //  deviceId 这里有个问题
-  const device = blueDeviceList.value[0]
+  const device = targetDeviceList.value[0]
   startCollect(device).then((res: any) => {
     if (res.status === 200) {
-      store.setDevice({ ...device, id: Math.floor(Math.random() * 1000) + 1 })
       //id: Math.floor(Math.random() * 1000) + 1
       store.setDevice({ ...device })
-
+      // 连接设备成功提示
       uni.showModal({
-        title: '提示',
+        title: '成功提示',
         content: '连接设备成功',
         success: function (res) {
           if (res.confirm) {
@@ -127,6 +141,7 @@ const confirmHandler = () => {
             uni.navigateBack({ delta: 1 })
           } else if (res.cancel) {
             console.log('用户点击取消')
+            uni.navigateBack({ delta: 1 })
           }
         }
       })
@@ -134,20 +149,25 @@ const confirmHandler = () => {
   })
   popupRef.value.close()
 }
+const selectDevice = (item: any) => {
+  targetDeviceList.value = [{ ...item }]
+  popupRef.value?.open()
+}
 
 const init = async () => {
   try {
     const initResult: any = await initAdapter()
     searchStatus.value = 1
     const discoverResult: any = initResult.status === 200 && (await startDiscoveryAndFound())
-    if (discoverResult.status === 200 && blueDeviceList.value.length) {
-      popupRef.value?.open()
+    if (discoverResult.status === 200 && allDeviceList.value.length) {
+      // popupRef.value?.open()
+      devicesRef.value.open()
     }
   } catch (e) {
     // @ts-ignore
     const errMsg = e.errMsg
     uni.showModal({
-      title: '提示',
+      title: '错误提示',
       content: errMsg,
       success: function (res) {
         if (res.confirm) {
@@ -162,11 +182,15 @@ const init = async () => {
   }
 }
 
+// watch(allDeviceList.value, () => {
+//   devicesRef.value.open()
+// })
+
 onMounted(() => {
   init()
 })
 onBeforeUnmount(() => {
-  blueDeviceList.value = []
+  targetDeviceList.value = []
 })
 </script>
 
@@ -194,6 +218,13 @@ onBeforeUnmount(() => {
     font-size: 28rpx;
     margin-top: 8rpx;
   }
+
+  .device-wrapper {
+    width: 680rpx;
+    height: 80vh;
+    overflow: auto;
+  }
+
   .circle-wrapper {
     position: relative;
     position: relative;

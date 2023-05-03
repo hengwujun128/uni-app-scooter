@@ -55,7 +55,7 @@
     /* 小程序特有相关 */
     "mp-weixin" : {
         // 测试账号
-        "appid" : "wxeb1a0b681d422486",
+        "appid" : "wxa437c6cbf81cb490",
         "setting" : {
             "urlCheck" : false,
             "es6" : true,

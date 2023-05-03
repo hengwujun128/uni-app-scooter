@@ -34,7 +34,8 @@ const useBlueTooth = () => {
 
   const filterServiceUUIDs = ref([]) // 用于过滤无关的蓝牙设备,需要参考蓝牙设备厂商提供的蓝牙协议；
 
-  const blueDeviceList: Ref<DEVICE[]> = ref([])
+  const allDeviceList: Ref<DEVICE[]> = ref([]) // 所有蓝牙设备
+  const targetDeviceList: Ref<DEVICE[]> = ref([]) // 指定的蓝牙设备
   const serviceList: Ref<SERVICE[]> = ref([])
   const characteristics: Ref<CHARACTERISTIC[]> = ref([])
 
@@ -52,24 +53,6 @@ const useBlueTooth = () => {
       return ('00' + bit.toString(16)).slice(-2)
     })
     return hexArr.join('')
-  }
-
-  // 将16进制的内容转成我们看得懂的字符串内容
-  const hexCharCodeToStr = (hexCharCodeStr: String) => {
-    const trimedStr = hexCharCodeStr.trim()
-    const rawStr = trimedStr.substr(0, 2).toLowerCase() === '0x' ? trimedStr.substr(2) : trimedStr
-    const len = rawStr.length
-    if (len % 2 !== 0) {
-      alert('存在非法字符!')
-      return ''
-    }
-    let curCharCode
-    const resultStr = []
-    for (let i = 0; i < len; i = i + 2) {
-      curCharCode = parseInt(rawStr.substr(i, 2), 16)
-      resultStr.push(String.fromCharCode(curCharCode))
-    }
-    return resultStr.join('')
   }
 
   // 停止蓝牙搜索
@@ -135,13 +118,16 @@ const useBlueTooth = () => {
           // 监听寻找到新设备的事件
           uni.onBluetoothDeviceFound((data) => {
             const { devices = [] } = data
+
+            // devices 只有一条数据
             console.log('deviceId----name---:', devices[0].name)
-            // if (devices[0].name && devices[0].name === DEVICE_NAME)
-            // 名称相同只取一条数据
-            if (blueDeviceList.value.length===0&&devices[0].name&& devices[0].name === DEVICE_NAME) {
-              blueDeviceList.value.push(devices[0])
-              resolve({ message: '启动蓝牙搜索成功', status: 200 })
-            }
+            allDeviceList.value.push(devices[0])
+            resolve({ message: '启动蓝牙搜索成功', status: 200 })
+            // 只连接指定设备
+            // if (targetDeviceList.value.length === 0 && devices[0].name && devices[0].name === DEVICE_NAME) {
+            //   targetDeviceList.value.push(devices[0])
+            //   resolve({ message: '启动蓝牙搜索成功', status: 200 })
+            // }
           })
         },
         fail: (err) => {
@@ -160,7 +146,7 @@ const useBlueTooth = () => {
 
       uni.createBLEConnection({
         deviceId: device.deviceId,
-        timeout:2000,
+        timeout: 2000,
         success(res) {
           console.log('连接目标设备成功')
           stopDiscovery()
@@ -305,7 +291,6 @@ const useBlueTooth = () => {
   }
   return {
     ab2hex,
-    hexCharCodeToStr,
     /* ----------------------------------- 方法 ----------------------------------- */
     initAdapter,
     startDiscoveryAndFound,
@@ -316,8 +301,11 @@ const useBlueTooth = () => {
     notify,
     listenValueChange,
     sendMessageHandler,
+
+    setDeviceId,
     /* ----------------------------------- 变量 ----------------------------------- */
-    blueDeviceList,
+    targetDeviceList,
+    allDeviceList,
     deviceId,
     serviceId,
     characteristicId
