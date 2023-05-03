@@ -176,9 +176,11 @@ const useBlueTooth = () => {
 
   // 4-1 获取指定设备的服务列表 - 根据 deviceId
   const getServicesByDeviceId = (id: string): Promise<any> => {
-    if (!deviceId.value) {
-      deviceId.value = id
-    }
+    deviceId.value = id
+    console.log('-----查找service列表的deviceId---', deviceId.value)
+    // if (!deviceId.value) {
+    //   deviceId.value = id
+    // }
     return new Promise((resolve, reject) => {
       uni.getBLEDeviceServices({
         deviceId: deviceId.value,
@@ -187,11 +189,15 @@ const useBlueTooth = () => {
             // todo: 和硬件佬对接 指定服务还有特征值
             serviceList.value = res.services
             const service = serviceList.value.find((item) => item.uuid === SERVICE_ID)
+
+            console.log('-----查找service列表---', serviceList.value)
             console.log('-----查找service---', service)
             if (service) {
               serviceId.value = service.uuid
+            } else {
+              serviceId.value = SERVICE_ID
             }
-            resolve(res.services)
+            resolve(serviceId.value)
           }
         },
         fail(err) {

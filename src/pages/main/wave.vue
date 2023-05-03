@@ -43,7 +43,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, Ref, computed, watch, onMounted, onBeforeUnmount } from 'vue'
+import { ref, Ref, computed, watch, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import { useBlueToothStore } from '@/store'
 
 import useBlueTooth from '../../hooks/useBlueTooth.ts'
@@ -99,7 +99,8 @@ const listenValueChange = () => {
 const getDataFromBlueTooth = async (id: string) => {
   console.log('DeviceId', id)
   try {
-    await getServicesByDeviceId(id)
+    const serviceId = await getServicesByDeviceId(id)
+    console.log('---serviceid--', serviceId)
     await getCharacteristicsByDeviceIdAndServiceId()
     const res = await notify()
     if (res.status === 200) {
@@ -131,6 +132,16 @@ const confirmHandler = () => {
       //id: Math.floor(Math.random() * 1000) + 1
       store.setDevice({ ...device })
       // 连接设备成功提示
+      // 监听蓝牙数据
+      //
+      // uni.showToast({
+      //   title: '连接设备成功',
+      //   icon: 'success',
+      //   success: () => {
+      //     getDataFromBlueTooth(device.deviceId)
+      //     uni.navigateBack({ delta: 1 })
+      //   }
+      // })
       uni.showModal({
         title: '成功提示',
         content: '连接设备成功',
@@ -221,8 +232,9 @@ onBeforeUnmount(() => {
 
   .device-wrapper {
     width: 680rpx;
-    height: 80vh;
+    max-height: 60vh;
     overflow: auto;
+    border-radius: 20rpx;
   }
 
   .circle-wrapper {
