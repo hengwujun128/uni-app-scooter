@@ -58,7 +58,8 @@ const {
   // 接收蓝牙
   getServicesByDeviceId,
   getCharacteristicsByDeviceIdAndServiceId,
-  notify
+  notify,
+  retry
 } = useBlueTooth()
 
 const { pageState, getBleData } = useBleData()
@@ -99,8 +100,16 @@ const listenValueChange = () => {
 const getDataFromBlueTooth = async (id: string) => {
   console.log('DeviceId', id)
   try {
-    const serviceId = await getServicesByDeviceId(id)
-    console.log('---serviceid--', serviceId)
+    // const serviceId = await getServicesByDeviceId(id)
+    // 获取service  需要重试
+    const serviceId = await retry(
+      () => {
+        return getServicesByDeviceId(id)
+      },
+      10,
+      300
+    )
+    console.log('---serviceId--', serviceId)
     await getCharacteristicsByDeviceIdAndServiceId()
     const res = await notify()
     if (res.status === 200) {
@@ -124,41 +133,28 @@ const getDataFromBlueTooth = async (id: string) => {
 }
 
 // 蓝牙连接成功之后要跳转到首页
-const confirmHandler = () => {
-  //  deviceId 这里有个问题
-  const device = targetDeviceList.value[0]
-  startCollect(device).then((res: any) => {
-    if (res.status === 200) {
-      //id: Math.floor(Math.random() * 1000) + 1
-      store.setDevice({ ...device })
-      // 连接设备成功提示
-      // 监听蓝牙数据
-      //
-      // uni.showToast({
-      //   title: '连接设备成功',
-      //   icon: 'success',
-      //   success: () => {
-      //     getDataFromBlueTooth(device.deviceId)
-      //     uni.navigateBack({ delta: 1 })
-      //   }
-      // })
-      uni.showModal({
-        title: '成功提示',
-        content: '连接设备成功',
-        success: function (res) {
-          if (res.confirm) {
-            // 监听蓝牙数据
-            getDataFromBlueTooth(device.deviceId)
-            uni.navigateBack({ delta: 1 })
-          } else if (res.cancel) {
-            console.log('用户点击取消')
-            uni.navigateBack({ delta: 1 })
-          }
-        }
-      })
-    }
-  })
+const confirmHandler = async () => {
   popupRef.value.close()
+  const device = targetDeviceList.value[0]
+  const collectResult: any = await retry(
+    () => {
+      return startCollect(device)
+    },
+    10,
+    300
+  )
+  if (collectResult.status === 200) {
+    //id: Math.floor(Math.random() * 1000) + 1
+    store.setDevice({ ...device })
+    // 连接设备成功 就进行 监听蓝牙数据
+    getDataFromBlueTooth(device.deviceId)
+    uni.navigateBack({ delta: 1 })
+  } else {
+    uni.showToast({
+      title: '连接设备失败',
+      icon: 'error'
+    })
+  }
 }
 const selectDevice = (item: any) => {
   targetDeviceList.value = [{ ...item }]

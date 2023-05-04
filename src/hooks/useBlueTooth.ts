@@ -155,11 +155,6 @@ const useBlueTooth = () => {
         fail(err) {
           console.log('连接失败: deviceId: deviceId.value', deviceId.value)
           console.error(err)
-          uni.showToast({
-            title: '连接失败',
-            icon: 'error',
-            duration: 1000 * 10
-          })
           reject({ ...err, status: 0 })
         }
       })
@@ -178,15 +173,12 @@ const useBlueTooth = () => {
   const getServicesByDeviceId = (id: string): Promise<any> => {
     deviceId.value = id
     console.log('-----查找service列表的deviceId---', deviceId.value)
-    // if (!deviceId.value) {
-    //   deviceId.value = id
-    // }
+
     return new Promise((resolve, reject) => {
       uni.getBLEDeviceServices({
         deviceId: deviceId.value,
         success(res) {
           if (res.services) {
-            // todo: 和硬件佬对接 指定服务还有特征值
             serviceList.value = res.services
             const service = serviceList.value.find((item) => item.uuid === SERVICE_ID)
 
@@ -195,7 +187,8 @@ const useBlueTooth = () => {
             if (service) {
               serviceId.value = service.uuid
             } else {
-              serviceId.value = SERVICE_ID
+              // serviceId.value 必须通过蓝牙调用,直接赋值不行
+              reject()
             }
             resolve(serviceId.value)
           }
@@ -260,6 +253,31 @@ const useBlueTooth = () => {
     })
   }
 
+  // 重试机制
+  const retry = (api: Function, times = 0, delay = 0) => {
+    return new Promise((resolve, reject) => {
+      console.log('---retry---')
+      const inner = async () => {
+        try {
+          const result = await api()
+          console.log('retry:result---', result)
+          return resolve(result)
+        } catch (e) {
+          if (times-- <= 0) {
+            reject(e) //访问次数为0彻底失败
+          } else {
+            console.log('重试，剩余', times)
+            //延迟执行
+            setTimeout(() => {
+              inner() //再次尝试
+            }, delay)
+          }
+        }
+      }
+      return inner()
+    })
+  }
+
   /* -------------------------------------------------------------------------- */
   /*                                    发送指令                                 */
   /* -------------------------------------------------------------------------- */
@@ -297,6 +315,7 @@ const useBlueTooth = () => {
   }
   return {
     ab2hex,
+    retry,
     /* ----------------------------------- 方法 ----------------------------------- */
     initAdapter,
     startDiscoveryAndFound,
