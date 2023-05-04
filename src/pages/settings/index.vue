@@ -47,18 +47,18 @@
       <view class="card card-rowLayout">
         <view class="row">
           <text class="label">方向灵敏度</text>
-          <text class="value">{{ settings.directionalSensitivity }}</text>
+          <text class="value">{{ settings.directionalSensitivityForHighAndLow }}</text>
         </view>
         <view class="row">
           <text class="label label-left">低</text>
           <slider
             class="slider"
-            :value="settings.directionalSensitivity"
+            :value="settings.directionalSensitivityForHighAndLow"
             active-color="#FFCC33"
             background-color="linear-gradient(89.99deg, #2149C4 -1.79%, #06D7CA 104.63%);"
             block-color="#8A6DE9"
-            :block-size="50"
-            @change="sliderChange"
+            :block-size="30"
+            @change="changeDirectionState(1)"
           />
           <text class="label label-right">高</text>
         </view>
@@ -77,8 +77,8 @@
             active-color="#FFCC33"
             background-color="linear-gradient(89.99deg, #2149C4 -1.79%, #06D7CA 104.63%);"
             block-color="#8A6DE9"
-            :block-size="50"
-            @change="sliderChange"
+            :block-size="30"
+            @change="changeDirectionState(2)"
           />
           <text class="label label-right">后</text>
         </view>
@@ -112,7 +112,7 @@
             active-color="#FFCC33"
             background-color="linear-gradient(89.99deg, #2149C4 -1.79%, #06D7CA 104.63%);"
             block-color="#8A6DE9"
-            :block-size="50"
+            :block-size="30"
             @change="sliderChange"
           />
           <text class="label label-right">100</text>
@@ -163,7 +163,9 @@ import { reactive } from 'vue'
 
 const settings = reactive({
   lang: '',
-  directionalSensitivity: 0
+  directionalSensitivity: 0,
+  directionalSensitivityForFrontAndBack: 0, // 方向灵敏度-前后
+  directionalSensitivityForHighAndLow: 0 // 方向灵敏度-高低
 })
 const back = () => {
   uni.navigateBack()
@@ -177,6 +179,9 @@ const setLang = () => {
 const sliderChange = (e: any) => {
   console.log('---')
   settings.directionalSensitivity = e.detail.value
+}
+const changeDirectionState = (data: number) => {
+  console.log(data, settings.directionalSensitivityForHighAndLow)
 }
 const setDirection = (e: any) => {
   console.log('方向矫正', e.detail.value)
