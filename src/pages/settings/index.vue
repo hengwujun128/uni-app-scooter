@@ -159,14 +159,45 @@
 </template>
 
 <script lang="ts" setup>
-import { reactive } from 'vue'
+import { reactive, computed } from 'vue'
+import useBlueTooth from '../../hooks/useBlueTooth.ts'
+import { useBlueToothStore } from '@/store'
 
+const { serviceId, characteristicId, ab2hex } = useBlueTooth()
+
+// 获取自定义的store
+const store = useBlueToothStore()
 const settings = reactive({
   lang: '',
   directionalSensitivity: 0,
   directionalSensitivityForFrontAndBack: 0, // 方向灵敏度-前后
   directionalSensitivityForHighAndLow: 0 // 方向灵敏度-高低
 })
+
+const device = computed(() => store.device)
+
+// 发送消息指令
+
+const sendCmd = (buffer: any) => {
+  console.log(ab2hex(buffer))
+  return new Promise((resolve, reject) => {
+    uni.writeBLECharacteristicValue({
+      deviceId: device.value.deviceId,
+      serviceId: serviceId.value || '0000FFE0-0000-1000-8000-00805F9B34FB',
+      characteristicId: characteristicId.value || '0000FFE1-0000-1000-8000-00805F9B34FB',
+      //@ts-ignore
+      value: buffer,
+      success: (res) => {
+        console.log('res', res)
+        resolve(res)
+      },
+      fail: (error) => {
+        reject(error)
+      }
+    })
+  })
+}
+
 const back = () => {
   uni.navigateBack()
   // uni.navigateTo({
@@ -185,6 +216,7 @@ const changeDirectionState = (data: number) => {
 }
 const setDirection = (e: any) => {
   console.log('方向矫正', e.detail.value)
+  // sendCmd()
 }
 </script>
 
