@@ -1,26 +1,11 @@
 <template>
   <view class="settings">
-    <uni-nav-bar
-      dark
-      :border="false"
-      :fixed="true"
-      background-color="#2d2f43"
-      left-icon="left"
-      left-text="返回"
-      title="设置"
-      height="200rpx"
-      @click-left="back"
-    >
+    <uni-nav-bar dark :border="false" :fixed="true" background-color="#2d2f43" left-icon="left" left-text="返回"
+      title="设置" height="200rpx" @click-left="back">
       <template #left>
         <view class="icon-left">
-          <u-icon
-            width="80"
-            height="80"
-            size="60"
-            space="10px"
-            hover-class="hover-class"
-            name="/static/images/scooter/btn-back.svg"
-          ></u-icon>
+          <u-icon width="80" height="80" size="60" space="10px" hover-class="hover-class"
+            name="/static/images/scooter/btn-back.svg"></u-icon>
         </view>
       </template>
     </uni-nav-bar>
@@ -33,68 +18,49 @@
             <text class="desc">中文</text>
           </view>
           <view class="right action">
-            <uni-icons
-              type="right"
-              size="24"
-              class="setting-icon"
-              color="#fff;opacity:0.4"
-              @click="setLang"
-            ></uni-icons>
+            <uni-icons type="right" size="24" class="setting-icon" color="#fff;opacity:0.4"
+              @click="setLang"></uni-icons>
           </view>
         </view>
       </view>
       <!-- 方向灵敏度 -->
       <view class="card card-rowLayout">
         <view class="row">
-          <text class="label">方向灵敏度</text>
+          <text class="label">转向灵敏度</text>
           <text class="value">{{ settings.directionalSensitivityForHighAndLow }}</text>
         </view>
         <view class="row">
           <text class="label label-left">低</text>
-          <slider
-            class="slider"
-            :min="0"
-            :max="100"
-            :value="settings.directionalSensitivityForHighAndLow"
-            active-color="#FFCC33"
-            background-color="linear-gradient(89.99deg, #2149C4 -1.79%, #06D7CA 104.63%);"
-            block-color="#8A6DE9"
-            :block-size="30"
-            @change="changeSensitivity"
-          />
+          <slider class="slider" :min="0" :max="100" :value="settings.directionalSensitivityForHighAndLow"
+            active-color="#FFCC33" background-color="linear-gradient(89.99deg, #2149C4 -1.79%, #06D7CA 104.63%);"
+            block-color="#8A6DE9" :block-size="30" @change="changeSensitivity" />
           <text class="label label-right">高</text>
         </view>
       </view>
-      <!-- 方向灵敏度 -->
+      <!-- 平衡点 -->
       <view class="card card-rowLayout">
         <view class="row">
-          <text class="label">方向灵敏度</text>
+          <text class="label">平衡点</text>
           <text class="value">{{ settings.directionalSensitivityForFrontAndBack }}</text>
         </view>
         <view class="row">
           <text class="label label-left">前</text>
-          <slider
-            class="slider"
-            :value="settings.directionalSensitivityForFrontAndBack"
-            active-color="#FFCC33"
-            background-color="linear-gradient(89.99deg, #2149C4 -1.79%, #06D7CA 104.63%);"
-            block-color="#8A6DE9"
-            :block-size="30"
-            @change="changeDirection"
-          />
+          <slider class="slider" :value="settings.directionalSensitivityForFrontAndBack" active-color="#FFCC33"
+            background-color="linear-gradient(89.99deg, #2149C4 -1.79%, #06D7CA 104.63%);" block-color="#8A6DE9"
+            :block-size="30" @change="changeDirection" />
           <text class="label label-right">后</text>
         </view>
       </view>
 
       <!-- 方向矫正 -->
-      <view class="card card-rowLayout">
+      <!-- <view class="card card-rowLayout">
         <view class="row">
           <text class="label">方向矫正</text>
           <switch checked color="rgba(15, 224, 136, 1)" @change="setDirection" />
         </view>
-      </view>
-      <!-- 自平衡模式 -->
+      </view> -->
 
+      <!-- 自平衡模式 -->
       <view class="card card-rowLayout">
         <view class="row">
           <text class="label">自平衡模式</text>
@@ -108,22 +74,16 @@
 
         <view class="row">
           <text class="label label-left">0</text>
-          <slider
-            class="slider"
-            :value="settings.balanceValue"
-            active-color="#FFCC33"
-            background-color="linear-gradient(89.99deg, #2149C4 -1.79%, #06D7CA 104.63%);"
-            block-color="#8A6DE9"
-            :block-size="30"
-            @change="setBalanceValue"
-          />
+          <slider class="slider" :value="settings.balanceValue" active-color="#FFCC33"
+            background-color="linear-gradient(89.99deg, #2149C4 -1.79%, #06D7CA 104.63%);" block-color="#8A6DE9"
+            :block-size="30" @change="setBalanceValue" />
           <text class="label label-right">100</text>
         </view>
       </view>
 
       <!-- 密码锁设置&& 一键恢复出厂设置 -->
       <view class="card">
-        <view class="row">
+        <!-- <view class="row">
           <view class="left">
             <text class="title">密码锁设置</text>
             <text class="desc">已锁定</text>
@@ -131,7 +91,7 @@
           <view class="right">
             <uni-icons type="right" size="24" color="#fff;opacity:0.4" @click="setLang"></uni-icons>
           </view>
-        </view>
+        </view> -->
         <view class="divider"></view>
         <view class="row">
           <view class="left">
@@ -139,7 +99,7 @@
             <text class="desc">已锁定</text>
           </view>
           <view class="right">
-            <uni-icons type="right" size="24" color="#fff;opacity:0.4" @click="setLang"></uni-icons>
+            <uni-icons type="right" size="24" color="#fff;opacity:0.4" @click="ResetFactory"></uni-icons>
           </view>
         </view>
       </view>
@@ -209,13 +169,21 @@ const back = () => {
   //   url: '../main/main'
   // })
 }
+
+// 恢复出厂设置
+const ResetFactory = () => {
+  console.log('恢复出厂设置')
+}
+
 const setLang = () => {
   console.log('setLang--')
 }
+
 const sliderChange = (e: any) => {
   console.log('---')
   settings.directionalSensitivity = e.detail.value
 }
+
 // 方向高低灵敏度
 const changeSensitivity = (e: any) => {
   console.log('changeSensitivity', e.detail.value)
@@ -255,8 +223,10 @@ const setBalanceValue = (e: any) => {
   border-radius: 50%;
   background: linear-gradient(360deg, #4d5068 -4.38%, #31354a 100%);
 }
+
 .settings {
   background: #2d2f43;
+
   .body {
     height: calc(100vh - 200rpx);
     padding-bottom: 200rpx;
@@ -271,18 +241,22 @@ const setBalanceValue = (e: any) => {
   background: #34374d;
   border-radius: 24rpx;
   color: #ffffff;
+
   .left {
     flex: 1;
+
     .title,
     .desc {
       display: block;
     }
+
     .title {
       font-size: 32rpx;
       line-height: 45rpx;
       height: 45rpx;
       margin-bottom: 6rpx;
     }
+
     .desc {
       font-size: 24rpx;
       height: 34rpx;
@@ -297,6 +271,7 @@ const setBalanceValue = (e: any) => {
   align-items: center;
   justify-content: space-between;
 }
+
 .divider {
   height: 1px;
   width: 100%;
@@ -307,6 +282,7 @@ const setBalanceValue = (e: any) => {
 .label {
   font-size: 32rpx;
 }
+
 .label-left,
 .label-right {
   font-size: 24rpx;
