@@ -53,12 +53,14 @@
           <text class="label label-left">低</text>
           <slider
             class="slider"
+            :min="0"
+            :max="100"
             :value="settings.directionalSensitivityForHighAndLow"
             active-color="#FFCC33"
             background-color="linear-gradient(89.99deg, #2149C4 -1.79%, #06D7CA 104.63%);"
             block-color="#8A6DE9"
             :block-size="30"
-            @change="changeDirectionState(1)"
+            @change="changeSensitivity"
           />
           <text class="label label-right">高</text>
         </view>
@@ -67,18 +69,18 @@
       <view class="card card-rowLayout">
         <view class="row">
           <text class="label">方向灵敏度</text>
-          <text class="value">{{ settings.directionalSensitivity }}</text>
+          <text class="value">{{ settings.directionalSensitivityForFrontAndBack }}</text>
         </view>
         <view class="row">
           <text class="label label-left">前</text>
           <slider
             class="slider"
-            :value="settings.directionalSensitivity"
+            :value="settings.directionalSensitivityForFrontAndBack"
             active-color="#FFCC33"
             background-color="linear-gradient(89.99deg, #2149C4 -1.79%, #06D7CA 104.63%);"
             block-color="#8A6DE9"
             :block-size="30"
-            @change="changeDirectionState(2)"
+            @change="changeDirection"
           />
           <text class="label label-right">后</text>
         </view>
@@ -96,24 +98,24 @@
       <view class="card card-rowLayout">
         <view class="row">
           <text class="label">自平衡模式</text>
-          <switch checked color="rgba(15, 224, 136, 1)" @change="setDirection" />
+          <switch checked color="rgba(15, 224, 136, 1)" @change="setBalanceMode" />
         </view>
         <view class="divider"></view>
         <view class="row">
           <text class="label">自平衡点校正</text>
-          <text class="value">{{ settings.directionalSensitivity }}</text>
+          <text class="value">{{ settings.balanceValue }}</text>
         </view>
 
         <view class="row">
           <text class="label label-left">0</text>
           <slider
             class="slider"
-            :value="settings.directionalSensitivity"
+            :value="settings.balanceValue"
             active-color="#FFCC33"
             background-color="linear-gradient(89.99deg, #2149C4 -1.79%, #06D7CA 104.63%);"
             block-color="#8A6DE9"
             :block-size="30"
-            @change="sliderChange"
+            @change="setBalanceValue"
           />
           <text class="label label-right">100</text>
         </view>
@@ -171,7 +173,10 @@ const settings = reactive({
   lang: '',
   directionalSensitivity: 0,
   directionalSensitivityForFrontAndBack: 0, // 方向灵敏度-前后
-  directionalSensitivityForHighAndLow: 0 // 方向灵敏度-高低
+  directionalSensitivityForHighAndLow: 0, // 方向灵敏度-高低
+  directionalStatus: false, // 方向矫正状态
+  balanceModeStatus: false, //  平衡模式状态
+  balanceValue: 0 // 平衡点矫正值
 })
 
 const device = computed(() => store.device)
@@ -211,12 +216,30 @@ const sliderChange = (e: any) => {
   console.log('---')
   settings.directionalSensitivity = e.detail.value
 }
-const changeDirectionState = (data: number) => {
-  console.log(data, settings.directionalSensitivityForHighAndLow)
+// 方向高低灵敏度
+const changeSensitivity = (e: any) => {
+  console.log('changeSensitivity', e.detail.value)
+  settings.directionalSensitivityForHighAndLow = e.detail.value
 }
+// 方向前后灵敏度
+const changeDirection = (e: any) => {
+  settings.directionalSensitivityForFrontAndBack = e.detail.value
+}
+// 方向矫正
 const setDirection = (e: any) => {
-  console.log('方向矫正', e.detail.value)
+  settings.directionalStatus = e.detail.value
+  console.log('方向矫正', settings.directionalStatus)
   // sendCmd()
+}
+// 平衡模式
+const setBalanceMode = (e: any) => {
+  settings.balanceModeStatus = e.detail.value
+  console.log('平衡模式', settings.balanceModeStatus)
+}
+// 平衡点矫正值
+const setBalanceValue = (e: any) => {
+  settings.balanceValue = e.detail.value
+  console.log('平衡点校正值', settings.balanceValue)
 }
 </script>
 
