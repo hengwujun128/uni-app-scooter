@@ -1,11 +1,26 @@
 <template>
   <view class="settings">
-    <uni-nav-bar dark :border="false" :fixed="true" background-color="#2d2f43" left-icon="left" left-text="返回"
-      title="设置" height="200rpx" @click-left="back">
+    <uni-nav-bar
+      dark
+      :border="false"
+      :fixed="true"
+      background-color="#2d2f43"
+      left-icon="left"
+      left-text="返回"
+      title="设置"
+      height="200rpx"
+      @click-left="back"
+    >
       <template #left>
         <view class="icon-left">
-          <u-icon width="80" height="80" size="60" space="10px" hover-class="hover-class"
-            name="/static/images/scooter/btn-back.svg"></u-icon>
+          <u-icon
+            width="80"
+            height="80"
+            size="60"
+            space="10px"
+            hover-class="hover-class"
+            name="/static/images/scooter/btn-back.svg"
+          ></u-icon>
         </view>
       </template>
     </uni-nav-bar>
@@ -18,8 +33,13 @@
             <text class="desc">中文</text>
           </view>
           <view class="right action">
-            <uni-icons type="right" size="24" class="setting-icon" color="#fff;opacity:0.4"
-              @click="setLang"></uni-icons>
+            <uni-icons
+              type="right"
+              size="24"
+              class="setting-icon"
+              color="#fff;opacity:0.4"
+              @click="setLang"
+            ></uni-icons>
           </view>
         </view>
       </view>
@@ -31,9 +51,17 @@
         </view>
         <view class="row">
           <text class="label label-left">低</text>
-          <slider class="slider" :min="0" :max="100" :value="settings.directionalSensitivityForHighAndLow"
-            active-color="#FFCC33" background-color="linear-gradient(89.99deg, #2149C4 -1.79%, #06D7CA 104.63%);"
-            block-color="#8A6DE9" :block-size="30" @change="changeSensitivity" />
+          <slider
+            class="slider"
+            :min="0"
+            :max="100"
+            :value="settings.directionalSensitivityForHighAndLow"
+            active-color="#FFCC33"
+            background-color="linear-gradient(89.99deg, #2149C4 -1.79%, #06D7CA 104.63%);"
+            block-color="#8A6DE9"
+            :block-size="30"
+            @change="changeSensitivity"
+          />
           <text class="label label-right">高</text>
         </view>
       </view>
@@ -45,9 +73,15 @@
         </view>
         <view class="row">
           <text class="label label-left">前</text>
-          <slider class="slider" :value="settings.directionalSensitivityForFrontAndBack" active-color="#FFCC33"
-            background-color="linear-gradient(89.99deg, #2149C4 -1.79%, #06D7CA 104.63%);" block-color="#8A6DE9"
-            :block-size="30" @change="changeDirection" />
+          <slider
+            class="slider"
+            :value="settings.directionalSensitivityForFrontAndBack"
+            active-color="#FFCC33"
+            background-color="linear-gradient(89.99deg, #2149C4 -1.79%, #06D7CA 104.63%);"
+            block-color="#8A6DE9"
+            :block-size="30"
+            @change="changeDirection"
+          />
           <text class="label label-right">后</text>
         </view>
       </view>
@@ -74,9 +108,15 @@
 
         <view class="row">
           <text class="label label-left">0</text>
-          <slider class="slider" :value="settings.balanceValue" active-color="#FFCC33"
-            background-color="linear-gradient(89.99deg, #2149C4 -1.79%, #06D7CA 104.63%);" block-color="#8A6DE9"
-            :block-size="30" @change="setBalanceValue" />
+          <slider
+            class="slider"
+            :value="settings.balanceValue"
+            active-color="#FFCC33"
+            background-color="linear-gradient(89.99deg, #2149C4 -1.79%, #06D7CA 104.63%);"
+            block-color="#8A6DE9"
+            :block-size="30"
+            @change="setBalanceValue"
+          />
           <text class="label label-right">100</text>
         </view>
       </view>
@@ -169,13 +209,12 @@
 
     <view>
       <!-- 出厂设置对话框 -->
-      <uni-popup ref="resetRef" type="dialog">
+      <uni-popup ref="popupRef" type="dialog">
         <uni-popup-dialog
-          ref="inputClose"
+          ref="inputRef"
           mode="input"
           :title="dialog.title"
-          :value="dialog.value"
-          :placeholder="dialog.value"
+          :placeholder="dialog.placeholder"
           @confirm="confirmResettings"
         ></uni-popup-dialog>
       </uni-popup>
@@ -206,10 +245,11 @@ const settings = reactive({
 
 const dialog = reactive({
   title: '',
-  value: '',
-  action: ''
+  action: '',
+  placeholder: ''
 })
-const resetRef: Ref = ref(null)
+const popupRef: Ref = ref(null)
+const inputRef: Ref = ref(null)
 
 const isAdmin = ref(false)
 const adminSettings = reactive({
@@ -295,8 +335,8 @@ const setResettings = () => {
   console.log('出厂设置')
   dialog.action = 'setResettings'
   dialog.title = '恢复出厂设置'
-  dialog.value = '请输入密码'
-  resetRef.value.open()
+  dialog.placeholder = '请输入密码'
+  popupRef.value.open()
 }
 
 // 管理员设置
@@ -304,8 +344,8 @@ const setAdminSettings = () => {
   console.log('管理员设置')
   dialog.action = 'setAdminSettings'
   dialog.title = '管理员设置'
-  dialog.value = '请输入管理员密码'
-  resetRef.value.open()
+  dialog.placeholder = '请输入管理员密码'
+  popupRef.value.open()
 }
 
 /* --------------------------------- 管理员设置项 --------------------------------- */
@@ -313,8 +353,8 @@ const setBrand = () => {
   console.log('设置品牌')
   dialog.action = 'setBrand'
   dialog.title = '设置品牌名称'
-  dialog.value = '请输入品牌名称'
-  resetRef.value.open()
+  dialog.placeholder = '请输入品牌名称'
+  popupRef.value.open()
 }
 
 const setComponentShop = (e: any) => {
@@ -325,44 +365,63 @@ const setManufactureDate = () => {
   console.log('设置出厂日期')
   dialog.action = 'setManufactureDate'
   dialog.title = '设置出厂日期'
-  dialog.value = '请输入出厂日期'
-  resetRef.value.open()
+  dialog.placeholder = '请输入出厂日期'
+  popupRef.value.open()
 }
 
 const setWarrantyPeriod = () => {
   console.log('设置保修时长')
   dialog.action = 'setWarrantyPeriod'
   dialog.title = '设置保修时长'
-  dialog.value = '请输入保修时长'
-  resetRef.value.open()
+  dialog.placeholder = '请输入保修时长'
+  popupRef.value.open()
 }
 
 const setVersion = () => {
   console.log('设置版本')
   dialog.action = 'setVersion'
   dialog.title = '设置版本号'
-  dialog.value = '请输入版本号'
-  resetRef.value.open()
+  dialog.placeholder = '请输入版本号'
+  popupRef.value.open()
 }
 
 const confirmResettings = (val: any) => {
-  console.log('dialog.value', dialog.value)
-  console.log('val', val)
-  if (!val) {
-    return
-  }
-  uni.showLoading({
-    title: '正在校验密码'
-  })
+  // if (!val) {
+  //   return
+  // }
+
   // 出厂设置
-  if (dialog.action === 'setResettings' && Number(val) === 123456) {
-    // setCmd()
-    console.log('发送指令')
+  if (dialog.action === 'setResettings') {
+    if (Number(val) === 123456) {
+      uni.showToast({
+        icon: 'success',
+        title: '密码校验成功'
+      })
+      // setCmd()
+      console.log('发送指令')
+    } else {
+      uni.showToast({
+        icon: 'error',
+        title: '密码输入错误'
+      })
+    }
   }
   // 管理员设置
-  if (dialog.action === 'setAdminSettings' && Number(val) === 88888888) {
-    isAdmin.value = true
-    console.log('发送指令')
+  if (dialog.action === 'setAdminSettings') {
+    if (Number(val) === 88888888) {
+      uni.showToast({
+        icon: 'success',
+        title: '密码校验成功'
+      })
+      isAdmin.value = true
+      console.log('发送指令')
+      // setCmd()
+    } else {
+      uni.showToast({
+        icon: 'error',
+        title: '密码输入错误'
+      })
+    }
   }
   // 品牌名称
   if (dialog.action === 'setBrand') {
@@ -391,10 +450,11 @@ const confirmResettings = (val: any) => {
   }
 
   setTimeout(() => {
-    uni.hideLoading()
+    // uni.hideLoading()
     console.log(val)
     dialog.action = ''
-    resetRef.value.close()
+    inputRef.value.val = ''
+    popupRef.value.close()
   }, 0)
 }
 </script>
