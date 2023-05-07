@@ -123,7 +123,7 @@
 
       <!-- 密码锁设置&& 一键恢复出厂设置 -->
       <view class="card">
-        <view class="row">
+        <!-- <view class="row">
           <view class="left">
             <text class="title">密码锁设置</text>
             <text class="desc">已锁定</text>
@@ -132,43 +132,108 @@
             <uni-icons type="right" size="24" color="#fff;opacity:0.4" @click="setLang"></uni-icons>
           </view>
         </view>
-        <view class="divider"></view>
+        <view class="divider"></view> -->
         <view class="row">
           <view class="left">
             <text class="title">一键恢复出厂设置</text>
             <text class="desc">已锁定</text>
           </view>
           <view class="right">
-            <uni-icons type="right" size="24" color="#fff;opacity:0.4" @click="setLang"></uni-icons>
+            <uni-icons type="right" size="24" color="#fff;opacity:0.4" @click="setResettings"></uni-icons>
           </view>
         </view>
       </view>
       <!-- 管理员设置 -->
-      <view class="card">
+      <view class="card admin">
         <view class="row">
           <view class="left">
             <text class="title">管理员设置</text>
-            <text class="desc">已锁定</text>
+            <text class="desc">{{ isAdmin ? '已开启' : '已锁定' }}</text>
           </view>
           <view class="right">
-            <uni-icons type="right" size="24" color="#fff;opacity:0.4" @click="setLang"></uni-icons>
+            <uni-icons type="right" size="24" color="#fff;opacity:0.4" @click="setAdminSettings"></uni-icons>
           </view>
         </view>
+
+        <template v-if="isAdmin">
+          <view class="divider"></view>
+
+          <view class="row">
+            <view class="left">
+              <text class="title">品牌</text>
+              <text class="desc">{{ adminSettings.brandName }}</text>
+            </view>
+            <view class="right">
+              <uni-icons type="right" size="24" color="#fff;opacity:0.4" @click="setBrand"></uni-icons>
+            </view>
+          </view>
+          <view class="row">
+            <text class="label">配件商城</text>
+            <switch checked color="rgba(15, 224, 136, 1)" @change="setComponentShop" />
+          </view>
+          <!--  -->
+          <view class="row">
+            <view class="left">
+              <text class="title">出厂日期</text>
+              <text class="desc">{{ adminSettings.manufactureDate }}</text>
+            </view>
+            <view class="right">
+              <uni-icons type="right" size="24" color="#fff;opacity:0.4" @click="setManufactureDate"></uni-icons>
+            </view>
+          </view>
+
+          <view class="row">
+            <view class="left">
+              <text class="title">保修时长</text>
+              <text class="desc">{{ adminSettings.warrantyPeriod }}</text>
+            </view>
+            <view class="right">
+              <uni-icons type="right" size="24" color="#fff;opacity:0.4" @click="setWarrantyPeriod"></uni-icons>
+            </view>
+          </view>
+          <view class="row">
+            <view class="left">
+              <text class="title">版本</text>
+              <text class="desc">{{ adminSettings.version }}</text>
+            </view>
+            <view class="right">
+              <uni-icons type="right" size="24" color="#fff;opacity:0.4" @click="setVersion"></uni-icons>
+            </view>
+          </view>
+        </template>
       </view>
+      /* ------------------------------
       <!-- end -->
+      ------------------------------ */
+    </view>
+
+    <view>
+      <!-- 出厂设置对话框 -->
+      <uni-popup ref="resetRef" type="dialog">
+        <uni-popup-dialog
+          ref="inputClose"
+          mode="input"
+          :title="dialog.title"
+          :value="dialog.value"
+          :placeholder="dialog.value"
+          @confirm="confirmResettings"
+        ></uni-popup-dialog>
+      </uni-popup>
     </view>
   </view>
 </template>
 
 <script lang="ts" setup>
-import { reactive, computed } from 'vue'
+import { reactive, ref, Ref, computed } from 'vue'
 import useBlueTooth from '../../hooks/useBlueTooth.ts'
-import { useBlueToothStore } from '@/store'
+import { useBlueToothStore, useAdminSettingsStore } from '@/store'
 
 const { serviceId, characteristicId, ab2hex } = useBlueTooth()
 
 // 获取自定义的store
 const store = useBlueToothStore()
+const adminStore = useAdminSettingsStore()
+
 const settings = reactive({
   lang: '',
   directionalSensitivity: 0,
@@ -177,6 +242,22 @@ const settings = reactive({
   directionalStatus: false, // 方向矫正状态
   balanceModeStatus: false, //  平衡模式状态
   balanceValue: 0 // 平衡点矫正值
+})
+
+const dialog = reactive({
+  title: '',
+  value: '',
+  action: ''
+})
+const resetRef: Ref = ref(null)
+
+const isAdmin = ref(false)
+const adminSettings = reactive({
+  brandName: '',
+  enableComponentShop: false,
+  manufactureDate: '',
+  warrantyPeriod: '',
+  version: ''
 })
 
 const device = computed(() => store.device)
@@ -240,6 +321,113 @@ const setBalanceMode = (e: any) => {
 const setBalanceValue = (e: any) => {
   settings.balanceValue = e.detail.value
   console.log('平衡点校正值', settings.balanceValue)
+}
+// 恢复出厂设置
+const setResettings = () => {
+  console.log('出厂设置')
+  dialog.action = 'setResettings'
+  dialog.title = '恢复出厂设置'
+  dialog.value = '请输入密码'
+  resetRef.value.open()
+}
+
+// 管理员设置
+const setAdminSettings = () => {
+  console.log('管理员设置')
+  dialog.action = 'setAdminSettings'
+  dialog.title = '管理员设置'
+  dialog.value = '请输入管理员密码'
+  resetRef.value.open()
+}
+
+/* --------------------------------- 管理员设置项 --------------------------------- */
+const setBrand = () => {
+  console.log('设置品牌')
+  dialog.action = 'setBrand'
+  dialog.title = '设置品牌名称'
+  dialog.value = '请输入品牌名称'
+  resetRef.value.open()
+}
+
+const setComponentShop = (e: any) => {
+  console.log(' 设置配件商城', e.detail.value)
+  adminSettings.enableComponentShop = e.detail.value
+}
+const setManufactureDate = () => {
+  console.log('设置出厂日期')
+  dialog.action = 'setManufactureDate'
+  dialog.title = '设置出厂日期'
+  dialog.value = '请输入出厂日期'
+  resetRef.value.open()
+}
+
+const setWarrantyPeriod = () => {
+  console.log('设置保修时长')
+  dialog.action = 'setWarrantyPeriod'
+  dialog.title = '设置保修时长'
+  dialog.value = '请输入保修时长'
+  resetRef.value.open()
+}
+
+const setVersion = () => {
+  console.log('设置版本')
+  dialog.action = 'setVersion'
+  dialog.title = '设置版本号'
+  dialog.value = '请输入版本号'
+  resetRef.value.open()
+}
+
+const confirmResettings = (val: any) => {
+  console.log('dialog.value', dialog.value)
+  console.log('val', val)
+  if (!val) {
+    return
+  }
+  uni.showLoading({
+    title: '正在校验密码'
+  })
+  // 出厂设置
+  if (dialog.action === 'setResettings' && Number(val) === 123456) {
+    // setCmd()
+    console.log('发送指令')
+  }
+  // 管理员设置
+  if (dialog.action === 'setAdminSettings' && Number(val) === 88888888) {
+    isAdmin.value = true
+    console.log('发送指令')
+  }
+  // 品牌名称
+  if (dialog.action === 'setBrand') {
+    console.log('品牌名称', val)
+    adminSettings.brandName = val
+    adminStore.setAdminSettings({ brandName: val })
+  }
+  //出厂日期
+  if (dialog.action === 'setManufactureDate') {
+    console.log('出厂日期', val)
+    adminSettings.manufactureDate = val
+    adminStore.setAdminSettings({ manufactureDate: val })
+  }
+  //保修时长
+  if (dialog.action === 'setWarrantyPeriod') {
+    console.log('保修时长', val)
+    adminSettings.warrantyPeriod = val
+    adminStore.setAdminSettings({ warrantyPeriod: val })
+  }
+
+  // 版本
+  if (dialog.action === 'setVersion') {
+    console.log('版本', val)
+    adminSettings.version = val
+    adminStore.setAdminSettings({ version: val })
+  }
+
+  setTimeout(() => {
+    uni.hideLoading()
+    console.log(val)
+    dialog.action = ''
+    resetRef.value.close()
+  }, 0)
 }
 </script>
 
@@ -315,5 +503,10 @@ const setBalanceValue = (e: any) => {
 
 .slider {
   flex: 1;
+}
+.admin {
+  .row {
+    margin-bottom: 20rpx;
+  }
 }
 </style>

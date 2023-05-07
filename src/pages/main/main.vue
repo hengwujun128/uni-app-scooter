@@ -14,8 +14,8 @@
         </navigator>
       </view>
       <view class="col title-wrapper">
-        <view class="title">标题</view>
-        <view class="title-sub">版本:V1.1</view>
+        <view class="title">{{ adminSettings.brandName }}</view>
+        <view class="title-sub">版本:V{{ adminSettings.version }}</view>
       </view>
       <view class="col">
         <navigator url="/pages/settings/index" hover-class="navigator-hover">
@@ -188,7 +188,7 @@
 import { onLoad } from '@dcloudio/uni-app'
 
 import { ref, reactive, Ref, onMounted, computed, watch } from 'vue'
-import { useBlueToothStore } from '@/store'
+import { useBlueToothStore, useAdminSettingsStore } from '@/store'
 
 // import useDashBoard, { option } from './useDashBoard.ts'
 
@@ -219,8 +219,12 @@ const { getLocation } = useSystemInfo()
 
 // 获取自定义的store
 const store = useBlueToothStore()
+const adminStore = useAdminSettingsStore()
 
 const batteryStatus = ref(0)
+const adminSettings = computed(() => {
+  return adminStore.adminSettings
+})
 const device = computed(() => store.device)
 // 获取全局蓝牙状态
 const pageState = computed(() => store.blueToothState)
